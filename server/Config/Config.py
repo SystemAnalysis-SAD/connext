@@ -20,7 +20,7 @@ class Config():
 
     JWT_COOKIE_SECURE = False        # HTTPS only
     JWT_COOKIE_HTTPONLY = False      # JS cannot access (prevents XSS)
-    JWT_COOKIE_SAMESITE = "None"    # allow cross-site (React frontend)
+    JWT_COOKIE_SAMESITE = "Lax"    # allow cross-site (React frontend)
     JWT_COOKIE_CSRF_PROTECT = False    # prevents CSRF attacks
     JWT_DECODE_ALGORITHMS = ["HS256"]
 
