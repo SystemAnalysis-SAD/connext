@@ -25,20 +25,27 @@ export const AuthProvider = ({ children }) => {
   const fetchUserProfile = async () => {
     try {
       const cookie = Cookies.get("_u");
-      console.log(cookie);
       if (!cookie) {
         setUser(null);
         return;
       }
 
-      const parsed = JSON.parse(decodeURIComponent(cookie));
-      setUser(parsed.uid);
+      // Try to decode the cookie
+      try {
+        const decode = decodeURIComponent(decodeURIComponent(cookie));
+        const parse = JSON.parse(decode);
 
-      localStorage.setItem("token", Cookies.get("token"));
-    } catch (err) {
-      console.error(err);
+        const res = await api.get(`${API_URL}/api/profile`);
+        localStorage.setItem("token", Cookies.get("token"));
+        setUser(parse?.uid);
+      } catch (decodeError) {
+        console.error("Error decoding cookie:", decodeError);
+        setUser(null);
+        Cookies.remove("_u"); // Remove invalid cookie
+      }
+    } catch (error) {
+      console.error("Failed to fetch profile:", error);
       setUser(null);
-      Cookies.remove("_u");
     }
   };
 
@@ -68,11 +75,10 @@ export const AuthProvider = ({ children }) => {
           try {
             const decode = decodeURIComponent(decodeURIComponent(cookie));
             const parse = JSON.parse(decode);
-            setUser(response.data?.user?.uid);
-            console.log(parse?.uid);
-            await fetchUserProfile(); // Fallback to API call
+            setUser(parse?.uid);
           } catch (err) {
             console.error("Error parsing cookie after login:", err);
+            await fetchUserProfile(); // Fallback to API call
           }
         }
       }
@@ -87,9 +93,13 @@ export const AuthProvider = ({ children }) => {
   const register = async (registerData) => {
     setLoading(true);
     try {
-      const response = await api.post(`${API_URL}/api/register`, registerData, {
-        headers: { "Content-Type": "application/json" },
-      });
+      const response = await axios.post(
+        `${API_URL}/api/register`,
+        registerData,
+        {
+          headers: { "Content-Type": "application/json" },
+        }
+      );
 
       if (response.data.message?.includes("success")) {
         showMessage("Registered Successfully! Please login.");

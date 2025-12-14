@@ -1,8 +1,9 @@
 // socket.js - Your socket initialization file
 import { io } from "socket.io-client";
+import { API_URL } from "./config/config";
 
 // Create a SINGLE socket instance
-export const socket = io("https://connext-aj4o.onrender.com", {
+export const socket = io(`http://localhost:5000`, {
   transports: ["websocket", "polling"],
   reconnection: true,
   reconnectionAttempts: 10,

@@ -1,5 +1,10 @@
+""" import eventlet
+eventlet.monkey_patch() """
+
 from main import app, socketio
 
 
+
 if __name__ == '__main__':
-    socketio.run(app, host='0.0.0.0', port=5000, debug=True)
+    print("🚀 Starting SocketIO server...")
+    socketio.run(app, host='localhost', port=5000, debug=True)

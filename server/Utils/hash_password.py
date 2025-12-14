@@ -1,8 +1,6 @@
 from flask import jsonify
 import re
-from flask_bcrypt import Bcrypt
-
-bcrypt = Bcrypt()
+from extensions import bcrypt
 
 def check_hash_password(stored_hash: str, password: str) -> bool:
     """
