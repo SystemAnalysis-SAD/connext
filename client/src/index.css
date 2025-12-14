@@ -1,0 +1,234 @@
+@import "tailwindcss";
+
+:root {
+  --primary: #6d83f2;
+  --secondary: #93dfff;
+  --black: #27262c;
+}
+
+.abode {
+  font-family: "JK Abode", sans-serif;
+  font-weight: 500;
+}
+
+.sifonn {
+  font-family: "Sifonn Pro", sans-serif;
+  font-weight: 300;
+}
+
+@font-face {
+  font-family: "JK Abode";
+  src: url("/assets/fonts/JKAbode-Demo.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Sifonn Pro";
+  src: url("/assets/fonts/SIFONN_PRO.otf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@media screen and (min-width: 900px) {
+  .__login__,
+  .__register__ {
+    background-image: url("/bg2.webp");
+    background-size: cover;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+  }
+
+  /* Track (scrollbar background) */
+  ::-webkit-scrollbar-track {
+    background: #1e1e1e;
+    border-radius: 10px;
+  }
+
+  /* Scrollbar thumb (the bar itself) */
+  ::-webkit-scrollbar-thumb {
+    background: var(--primary);
+    border-radius: 10px;
+  }
+
+  /* Hover effect */
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--secondary);
+  }
+
+  .__loading_logo__ {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 130px;
+    height: 130px;
+    border-radius: 30px;
+    overflow: hidden;
+  }
+
+  .__loading_logo__::after {
+    content: "";
+    position: absolute;
+    width: 180px;
+    height: 180px;
+    border-radius: 28px;
+    background: conic-gradient(
+      var(--primary),
+      rgb(199, 45, 45),
+      var(--primary)
+    );
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+
+    animation: spin 1s infinite linear;
+  }
+
+  .__loading_logo__ img {
+    position: relative;
+    z-index: 2;
+  }
+}
+
+@media screen and (max-width: 900px) {
+  .__login__,
+  .__register__ {
+    background-color: var(--black);
+  }
+
+  .__loading_logo__ {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100px;
+    height: 100px;
+    border-radius: 30px;
+    overflow: hidden;
+  }
+
+  .__loading_logo__::after {
+    content: "";
+    position: absolute;
+    width: 180px;
+    height: 180px;
+    border-radius: 28px;
+    background: conic-gradient(
+      var(--primary),
+      rgb(199, 45, 45),
+      var(--primary)
+    );
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+
+    animation: spin 1s infinite linear;
+  }
+
+  .__loading_logo__ img {
+    position: relative;
+    z-index: 2;
+  }
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Add to your global CSS file */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Menu animations */
+.message-menu {
+  animation: fadeIn 0.15s ease-out;
+}
+
+.reaction-picker {
+  animation: scaleIn 0.15s ease-out;
+}
+
+/* Improve button touch targets */
+button {
+  touch-action: manipulation;
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  .message-container {
+    margin: 8px 4px;
+  }
+
+  .message-bubble {
+    max-width: 85% !important;
+  }
+
+  /* Make 3-dot menu always visible on mobile for better UX */
+  .message-menu-btn {
+    opacity: 1 !important;
+  }
+
+  /* Larger touch targets for mobile */
+  .reaction-emoji-btn {
+    width: 44px !important;
+    height: 44px !important;
+    font-size: 20px !important;
+  }
+
+  .menu-item {
+    padding: 12px 16px !important;
+    font-size: 14px !important;
+  }
+}
+
+/* Desktop hover effects */
+@media (min-width: 769px) {
+  .message-menu-btn {
+    opacity: 0;
+  }
+
+  .group:hover .message-menu-btn {
+    opacity: 1;
+  }
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(100, 100, 100, 0.5);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(100, 100, 100, 0.7);
+}
