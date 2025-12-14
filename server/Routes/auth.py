@@ -69,6 +69,15 @@ def login():
             max_age=60*60*24*7  # 7 days
         )
 
+        response.set_cookie(
+            "token",
+            access_token,
+            httponly=False,
+            samesite="Lax",
+            secure=True,
+            max_age=60*60*24*7  # 7 days
+        )
+
         # Use flask-jwt-extended's cookie setters for consistency
         set_access_cookies(response, access_token)
         set_refresh_cookies(response, refresh_token)
