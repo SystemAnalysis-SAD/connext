@@ -5,11 +5,9 @@ import logging
 from flask import Flask
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
-from Utils.hash_password import bcrypt
+from extensions import socketio, bcrypt
 from Config.Config import Config
 
-# IMPORTANT: socketio MUST be imported, not created here
-from Routes.message_routes import socketio
 
 # ---------------- LOGGING ----------------
 logging.basicConfig(level=logging.DEBUG)
@@ -30,7 +28,11 @@ CORS(
 # ---------------- EXTENSIONS ----------------
 jwt = JWTManager(app)
 bcrypt.init_app(app)
-socketio.init_app(app, cors_allowed_origins="*")
+socketio.init_app(app, 
+                cors_allowed_origins="*",
+                async_mode='eventlet',
+                logger=True,
+                engineio_logger=True)
 
 # ---------------- BLUEPRINTS ----------------
 from Routes.auth import auth_bp
@@ -46,7 +48,4 @@ def health_check():
 
 # ---------------- ENTRY POINT ----------------
 if __name__ == "__main__":
-    socketio.run(app, host="0.0.0.0", port=10000, debug=True)
-
-# 🔥 THIS IS WHAT GUNICORN NEEDS
-application = socketio
+    app.run(host="0.0.0.0", port=10000, debug=True)

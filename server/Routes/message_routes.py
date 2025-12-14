@@ -7,14 +7,12 @@ from datetime import datetime
 from datetime import timedelta
 import threading
 import time
+from extensions import socketio
 import atexit
 
 
 
 message_bp = Blueprint("message_bp", __name__)
-
-from flask_socketio import SocketIO
-socketio = SocketIO(cors_allowed_origins="*", async_mode="eventlet")
 
 
 
