@@ -19,6 +19,9 @@ def login():
     if not username or not password:
         return jsonify({"err": "Username and password required"}), 400
 
+    conn = None
+    cursor = None
+    
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
@@ -56,31 +59,32 @@ def login():
         
         response = make_response(jsonify({
             "message": "success",
-            "user": userData  # Also return user data in response
+            "user": userData
         }), 200)
 
-        # Set custom cookie for user data
         response.set_cookie(
             "_u",
             encode,
             httponly=False,
             samesite="Lax",
             secure=True,
-            max_age=60*60*24*7  # 7 days
+            max_age=60*60*24*7
         )
 
-        # Use flask-jwt-extended's cookie setters for consistency
         set_access_cookies(response, access_token)
         set_refresh_cookies(response, refresh_token)
 
         return response
 
     except Exception as e:
-        print("Login error:", e)
+        print(f"Login error: {e}")
         return jsonify({"err": "Server error"}), 500
     finally:
-        cursor.close()
-        conn.close()
+        # SAFELY close connections only if they exist
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
 
 @auth_bp.route('/api/debug-cookies', methods=['GET'])
 def debug_cookies():

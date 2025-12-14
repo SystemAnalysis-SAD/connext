@@ -7,6 +7,8 @@ from Routes.message_routes import socketio
 from Config.Config import Config
 from Models.get_db_connection import get_db_connection
 
+get_db_connection()
+
 # 1. Create extensions FIRST (without app)
 
 jwtmanager = JWTManager()
