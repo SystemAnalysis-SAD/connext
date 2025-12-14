@@ -1,9 +1,7 @@
-import eventlet
-eventlet.monkey_patch()
+from gevent import monkey
+monkey.patch_all()
 
 from main import app, socketio
-
-
 
 if __name__ == '__main__':
     print("🚀 Starting SocketIO server...")
