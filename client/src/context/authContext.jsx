@@ -25,6 +25,7 @@ export const AuthProvider = ({ children }) => {
   const fetchUserProfile = async () => {
     try {
       const cookie = Cookies.get("_u");
+      console.log(cookie);
       if (!cookie) {
         setUser(null);
         return;
@@ -69,8 +70,8 @@ export const AuthProvider = ({ children }) => {
             const parse = JSON.parse(decode);
             setUser(parse?.uid);
             console.log(parse?.uid);
-          } catch (err) {
             await fetchUserProfile(); // Fallback to API call
+          } catch (err) {
             console.error("Error parsing cookie after login:", err);
           }
         }
