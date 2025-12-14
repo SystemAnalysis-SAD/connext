@@ -18,7 +18,7 @@ class Config():
     JWT_REFRESH_COOKIE_NAME = 'refresh_token_cookie'
     JWT_ACCESS_COOKIE_NAME = 'access_token_cookie'
 
-    JWT_COOKIE_SECURE = True        # HTTPS only
+    JWT_COOKIE_SECURE = False        # HTTPS only
     JWT_COOKIE_HTTPONLY = False      # JS cannot access (prevents XSS)
     JWT_COOKIE_SAMESITE = "None"    # allow cross-site (React frontend)
     JWT_COOKIE_CSRF_PROTECT = False    # prevents CSRF attacks
