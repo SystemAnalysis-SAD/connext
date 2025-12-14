@@ -30,6 +30,7 @@ from sockets.reactions import reactions_bp
 from sockets.seen import seen_bp
 from sockets.typing import typing_bp
 
+#sockets
 app.register_blueprint(connection_bp)
 app.register_blueprint(messaging_bp)
 app.register_blueprint(edit_bp)
@@ -37,6 +38,7 @@ app.register_blueprint(reactions_bp)
 app.register_blueprint(seen_bp)
 app.register_blueprint(typing_bp)
 
+#rest
 app.register_blueprint(auth_bp)
 app.register_blueprint(message_bp)
 
