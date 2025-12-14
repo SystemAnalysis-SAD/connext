@@ -1,4 +1,4 @@
-from . import create_app, socketio
+from server import create_app, socketio
 from flask_jwt_extended import JWTManager
 from .Config.Config import Config
 
