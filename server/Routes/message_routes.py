@@ -329,16 +329,15 @@ from flask_socketio import disconnect
 from flask_jwt_extended import verify_jwt_in_request, get_jwt_identity, get_jwt
 
 @socketio.on("connect")
-@jwt_required()
 def handle_connect():
     try:
         # Try to verify JWT from cookies or query parameters
-        token = request.cookies.get('access_token_cookie')
+        """ token = request.cookies.get('access_token_cookie')
         
         if not token:
             print(f"❌ No token provided for connection attempt")
             disconnect()
-            return
+            return """
         
         # Verify the token
         """ verify_jwt_in_request(optional=False, token=token) """
