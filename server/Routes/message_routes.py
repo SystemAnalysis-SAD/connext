@@ -8,11 +8,13 @@ from datetime import timedelta
 import threading
 import time
 import atexit
+from main import socketio
 
-from flask_socketio import SocketIO
-socketio = SocketIO(cors_allowed_origins="*", async_mode="eventlet")
+
 
 message_bp = Blueprint("message_bp", __name__)
+
+
 
 
 

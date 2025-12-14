@@ -6,13 +6,14 @@ from flask import Flask
 from flask_cors import CORS
 from Utils.hash_password import bcrypt
 from flask_jwt_extended import JWTManager
-from Routes.message_routes import socketio
 from Config.Config import Config
 import logging
 
 # Configure logging to see Socket.IO events
 logging.basicConfig(level=logging.DEBUG)
 
+from flask_socketio import SocketIO
+socketio = SocketIO(cors_allowed_origins="*", async_mode="eventlet")
 
 # 1. Create extensions FIRST (without app)
 
