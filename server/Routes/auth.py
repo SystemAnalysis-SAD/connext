@@ -65,7 +65,7 @@ def login():
             "_u",
             encode,
             httponly=False,
-            samesite="Lax",
+            samesite="none",
             secure=True,
             max_age=60*60*24*7  # 7 days
         )
@@ -74,7 +74,7 @@ def login():
             "token",
             access_token,
             httponly=False,
-            samesite="Lax",
+            samesite="none",
             secure=True,
             max_age=60*60*24*7  # 7 days
         )
