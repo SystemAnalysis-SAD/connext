@@ -36,7 +36,7 @@ export const AuthProvider = ({ children }) => {
         const parse = JSON.parse(decode);
 
         const res = await api.get(`${API_URL}/api/profile`);
-        localStorage.setItem("token", Cookies.get("token"));
+        /* localStorage.setItem("token", Cookies.get("token")); */
         setUser(parse?.uid);
       } catch (decodeError) {
         console.error("Error decoding cookie:", decodeError);

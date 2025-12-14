@@ -3,7 +3,7 @@ import { io } from "socket.io-client";
 import { API_URL } from "./config/config";
 
 // Create a SINGLE socket instance
-export const socket = io(`http://localhost:5000`, {
+export const socket = io(`${API_URL}`, {
   transports: ["websocket", "polling"],
   reconnection: true,
   reconnectionAttempts: 10,
