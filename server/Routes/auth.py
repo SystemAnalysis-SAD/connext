@@ -27,6 +27,7 @@ def login():
             (username,)
         )
         user = cursor.fetchone()
+        print(user)
         
         if not user or not check_hash_password(user["password"], password):
             return jsonify({"err": "Invalid credentials"}), 401

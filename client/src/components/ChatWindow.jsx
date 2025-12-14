@@ -20,6 +20,7 @@ import {
 import { FiArrowLeft } from "react-icons/fi";
 import EmojiPicker from "emoji-picker-react";
 import { API_URL } from "../config/config";
+import api from "../api/api";
 
 export default function ChatWindow({ sender_id, receiver, setActiveTab }) {
   const [messages, setMessages] = useState([]);
@@ -82,7 +83,7 @@ export default function ChatWindow({ sender_id, receiver, setActiveTab }) {
           user2: receiver.uid,
         });
 
-        const res = await axios.get(`%${API_URL}/messages/${receiver.uid}`, {
+        const res = await api.get(`${API_URL}/messages/${receiver.uid}`, {
           withCredentials: true,
         });
 

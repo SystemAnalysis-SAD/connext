@@ -38,7 +38,7 @@ export default function UserList({
       const token = getAuthToken();
       if (token) {
         try {
-          const messagesRes = await axios.get(`${API_URL}/latest-messages`, {
+          const messagesRes = await api.get(`${API_URL}/latest-messages`, {
             withCredentials: true,
           });
 
