@@ -1,6 +1,6 @@
 import psycopg2
 from psycopg2.extras import RealDictCursor
-from ..Models.get_db_connection import get_db_connection
+from Models.get_db_connection import get_db_connection
 
 def fetch_all(query, params=()):
     conn = get_db_connection()

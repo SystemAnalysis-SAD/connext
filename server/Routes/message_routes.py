@@ -1,6 +1,5 @@
 from flask import Blueprint, request, jsonify, current_app
-from ..database.db import fetch_all, get_db_connection
-from .. import socketio
+from database.db import fetch_all, get_db_connection
 from flask_jwt_extended import jwt_required, get_jwt_identity, create_access_token, verify_jwt_in_request, get_jwt
 from flask_socketio import join_room, emit, leave_room
 import pytz
@@ -11,6 +10,10 @@ import time
 import atexit
 
 message_bp = Blueprint("message_bp", __name__)
+
+
+from flask_socketio import SocketIO
+socketio = SocketIO(cors_allowed_origins="*", async_mode="eventlet")
 
 # Global connection for Socket.IO - Use connection pool instead
 def get_fresh_connection():

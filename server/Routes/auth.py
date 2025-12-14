@@ -1,10 +1,10 @@
 from flask import Blueprint, request, jsonify, make_response
 from flask_jwt_extended import create_access_token, create_refresh_token, set_access_cookies, set_refresh_cookies, jwt_required, get_jwt_identity, get_jwt, unset_jwt_cookies
-from ..Models.get_db_connection import get_db_connection
-from ..Utils.hash_password import generate_hash_password, check_hash_password
+from Models.get_db_connection import get_db_connection
+from Utils.hash_password import generate_hash_password, check_hash_password
 from datetime import timedelta
 import datetime
-from ..database.db import fetch_all
+from database.db import fetch_all
 import json
 import urllib.parse
 
