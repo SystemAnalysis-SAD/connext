@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { FiArrowLeft } from "react-icons/fi";
 import EmojiPicker from "emoji-picker-react";
+import { API_URL } from "../config/config";
 
 export default function ChatWindow({ sender_id, receiver, setActiveTab }) {
   const [messages, setMessages] = useState([]);
@@ -81,12 +82,9 @@ export default function ChatWindow({ sender_id, receiver, setActiveTab }) {
           user2: receiver.uid,
         });
 
-        const res = await axios.get(
-          `http://localhost:5000/messages/${receiver.uid}`,
-          {
-            withCredentials: true,
-          }
-        );
+        const res = await axios.get(`%${API_URL}/messages/${receiver.uid}`, {
+          withCredentials: true,
+        });
 
         const messagesData = res.data;
         setMessages(messagesData);

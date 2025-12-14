@@ -492,6 +492,7 @@ def get_online_status(user_id):
     return jsonify({"user_id": user_id, "is_online": is_online})
 
 @message_bp.route("/online-users", methods=["GET"])
+@jwt_required()
 def get_online_users():
     return jsonify({"online_users": online_manager.get_all_users()})
 

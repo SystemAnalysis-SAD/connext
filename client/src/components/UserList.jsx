@@ -4,6 +4,7 @@ import io from "socket.io-client";
 import api from "../api/api";
 import { format } from "date-fns";
 import Cookies from "js-cookie";
+import { API_URL } from "../config/config";
 
 export default function UserList({
   onSelectUser,
@@ -37,12 +38,9 @@ export default function UserList({
       const token = getAuthToken();
       if (token) {
         try {
-          const messagesRes = await axios.get(
-            "http://localhost:5000/latest-messages",
-            {
-              withCredentials: true,
-            }
-          );
+          const messagesRes = await axios.get(`${API_URL}/latest-messages`, {
+            withCredentials: true,
+          });
 
           const latestMessagesObj = {};
           const unreadCountsObj = {};
@@ -85,7 +83,7 @@ export default function UserList({
     if (!currentUserId) return;
 
     const initializeSocket = () => {
-      socketRef.current = io("http://localhost:5000", {
+      socketRef.current = io(`${API_URL}`, {
         transports: ["websocket", "polling"],
         reconnection: true,
         reconnectionAttempts: 5,
@@ -303,7 +301,7 @@ export default function UserList({
     // Set up interval to refresh online status
     const intervalId = setInterval(() => {
       api
-        .get("/online-users")
+        .get("/online-users", { withCredentials: true })
         .then((res) => {
           const onlineUserIds = new Set(res.data.online_users || []);
           setOnlineUsers(onlineUserIds);
