@@ -8,6 +8,10 @@ from Utils.hash_password import bcrypt
 from flask_jwt_extended import JWTManager
 from Routes.message_routes import socketio
 from Config.Config import Config
+import logging
+
+# Configure logging to see Socket.IO events
+logging.basicConfig(level=logging.DEBUG)
 
 
 # 1. Create extensions FIRST (without app)
@@ -38,11 +42,16 @@ from Routes.message_routes import message_bp
 app.register_blueprint(auth_bp)
 app.register_blueprint(message_bp)
 
+@app.route('/')
+def health_check():
+    return {'status': 'ok', 'service': 'chat-api'}
+
+
 # 7. Set socketio.app if needed (some patterns require this)
 socketio.app = app
 
 if __name__ == "__main__":
-    socketio.run(app, host='localhost', port=5000, debug=True)
+    socketio.run(app, host='0.0.0.0', port=10000, debug=True)
 else:
     # This helps gunicorn find the app
     application = app
