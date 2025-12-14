@@ -25,10 +25,10 @@ export const AuthProvider = ({ children }) => {
   const fetchUserProfile = async () => {
     try {
       const cookie = Cookies.get("_u");
-      if (!cookie) {
+      /* if (!cookie) {
         setUser(null);
         return;
-      }
+      } */
 
       // Try to decode the cookie
       try {
