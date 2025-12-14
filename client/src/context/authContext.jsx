@@ -68,7 +68,7 @@ export const AuthProvider = ({ children }) => {
           try {
             const decode = decodeURIComponent(decodeURIComponent(cookie));
             const parse = JSON.parse(decode);
-            setUser(parse?.uid);
+            setUser(response.data?.user?.uid);
             console.log(parse?.uid);
             await fetchUserProfile(); // Fallback to API call
           } catch (err) {
