@@ -4,7 +4,7 @@ import psycopg2
 
 def get_db_connection():
     try:
-        conn =  psycopg2.connect("postgresql://postgres:gabgab2024@localhost:5432/WorldChat", cursor_factory=RealDictCursor)
+        conn =  psycopg2.connect(Config.DB_URL, cursor_factory=RealDictCursor)
         print("database connected!")
         return conn
     except Exception as e:
