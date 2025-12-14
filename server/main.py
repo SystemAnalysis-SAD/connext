@@ -22,7 +22,7 @@ app.config.from_object(Config)
 
 # 4. Initialize extensions WITH the app
 CORS(app, supports_credentials=True, origins=[
-    "https://connext-cn.vercel.app"
+    "https://connext-cn.vercel.app", "localhost:5173"
 ])
 socketio.init_app(app)
 bcrypt.init_app(app)
