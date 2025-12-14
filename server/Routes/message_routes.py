@@ -10,13 +10,7 @@ import time
 import atexit
 from main import socketio
 
-
-
 message_bp = Blueprint("message_bp", __name__)
-
-
-
-
 
 
 # Global connection for Socket.IO - Use connection pool instead
