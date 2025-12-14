@@ -25,10 +25,10 @@ export const AuthProvider = ({ children }) => {
   const fetchUserProfile = async () => {
     try {
       const cookie = Cookies.get("_u");
-      /* if (!cookie) {
+      if (!cookie) {
         setUser(null);
         return;
-      } */
+      }
 
       // Try to decode the cookie
       try {
@@ -77,9 +77,8 @@ export const AuthProvider = ({ children }) => {
             const decode = decodeURIComponent(decodeURIComponent(cookie));
             const parse = JSON.parse(decode);
             setUser(parse?.uid);
-
-            await fetchUserProfile(); // Fallback to API call
           } catch (err) {
+            await fetchUserProfile(); // Fallback to API call
             console.error("Error parsing cookie after login:", err);
           }
         }
