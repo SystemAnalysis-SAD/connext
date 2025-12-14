@@ -21,7 +21,9 @@ app = Flask(__name__)
 app.config.from_object(Config)
 
 # 4. Initialize extensions WITH the app
-CORS(app, supports_credentials=True)
+CORS(app, supports_credentials=True, origins=[
+    "https://connext-cn.vercel.app"
+])
 socketio.init_app(app)
 bcrypt.init_app(app)
 jwtmanager.init_app(app)

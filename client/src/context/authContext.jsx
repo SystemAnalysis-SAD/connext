@@ -30,23 +30,14 @@ export const AuthProvider = ({ children }) => {
         return;
       }
 
-      // Try to decode the cookie
-      try {
-        const decode = decodeURIComponent(decodeURIComponent(cookie));
-        const parse = JSON.parse(decode);
-        //123
+      const parsed = JSON.parse(decodeURIComponent(cookie));
+      setUser(parsed.uid);
 
-        const res = await api.get(`${API_URL}/api/profile`);
-        localStorage.setItem("token", Cookies.get("token"));
-        setUser(parse?.uid);
-      } catch (decodeError) {
-        console.error("Error decoding cookie:", decodeError);
-        setUser(null);
-        Cookies.remove("_u"); // Remove invalid cookie
-      }
-    } catch (error) {
-      console.error("Failed to fetch profile:", error);
+      localStorage.setItem("token", Cookies.get("token"));
+    } catch (err) {
+      console.error(err);
       setUser(null);
+      Cookies.remove("_u");
     }
   };
 
@@ -77,6 +68,7 @@ export const AuthProvider = ({ children }) => {
             const decode = decodeURIComponent(decodeURIComponent(cookie));
             const parse = JSON.parse(decode);
             setUser(parse?.uid);
+            console.log(parse?.uid);
           } catch (err) {
             await fetchUserProfile(); // Fallback to API call
             console.error("Error parsing cookie after login:", err);
@@ -94,13 +86,9 @@ export const AuthProvider = ({ children }) => {
   const register = async (registerData) => {
     setLoading(true);
     try {
-      const response = await axios.post(
-        `${API_URL}/api/register`,
-        registerData,
-        {
-          headers: { "Content-Type": "application/json" },
-        }
-      );
+      const response = await api.post(`${API_URL}/api/register`, registerData, {
+        headers: { "Content-Type": "application/json" },
+      });
 
       if (response.data.message?.includes("success")) {
         showMessage("Registered Successfully! Please login.");

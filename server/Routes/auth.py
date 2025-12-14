@@ -66,7 +66,7 @@ def login():
             encode,
             httponly=False,
             samesite="none",
-            secure=False,
+            secure=True,
             max_age=60*60*24*7  # 7 days
         )
 
@@ -75,7 +75,7 @@ def login():
             access_token,
             httponly=False,
             samesite="none",
-            secure=False,
+            secure=True,
             max_age=60*60*24*7  # 7 days
         )
 
