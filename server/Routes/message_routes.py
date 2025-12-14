@@ -8,9 +8,15 @@ from datetime import timedelta
 import threading
 import time
 import atexit
-from main import socketio
+
+
 
 message_bp = Blueprint("message_bp", __name__)
+
+from flask_socketio import SocketIO
+socketio = SocketIO(cors_allowed_origins="*", async_mode="eventlet")
+
+
 
 
 # Global connection for Socket.IO - Use connection pool instead
