@@ -2,7 +2,7 @@
 import { io } from "socket.io-client";
 
 // Create a SINGLE socket instance
-export const socket = io("http://localhost:5000", {
+export const socket = io("https://connext-aj4o.onrender.com", {
   transports: ["websocket", "polling"],
   reconnection: true,
   reconnectionAttempts: 10,
