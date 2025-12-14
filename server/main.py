@@ -1,3 +1,6 @@
+import eventlet
+eventlet.monkey_patch()
+
 # server/main.py - FIXED VERSION
 from flask import Flask
 from flask_cors import CORS
