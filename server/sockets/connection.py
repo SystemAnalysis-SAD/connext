@@ -11,6 +11,7 @@ from Models.get_db_connection import get_db_connection
 
 
 @socketio.on("connect")
+@jwt_required()
 def handle_connect():
     try:
         # Verify the token
