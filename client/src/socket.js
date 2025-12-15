@@ -16,18 +16,11 @@ export const socket = io(API_URL, {
 /**
  * CONNECT SOCKET WITH JWT
  */
-export const connectSocket = (accessToken) => {
-  if (!accessToken) {
-    console.warn("⚠️ No token provided for socket connection");
-    return;
-  }
+export const connectSocket = (token) => {
+  if (socket.connected) return;
 
-  // Attach JWT BEFORE connecting
-  socket.auth = { token: accessToken };
-
-  if (!socket.connected) {
-    socket.connect();
-  }
+  socket.auth = { token };
+  socket.connect();
 };
 
 /**

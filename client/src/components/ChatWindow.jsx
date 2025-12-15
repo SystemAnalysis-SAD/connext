@@ -25,7 +25,9 @@ import api from "../api/api";
 export default function ChatWindow({ sender_id, receiver, setActiveTab }) {
   const [messages, setMessages] = useState([]);
   const [text, setText] = useState("");
-  const [socketStatus, setSocketStatus] = useState("disconnected");
+  const [socketStatus, setSocketStatus] = useState(
+    socket.connected ? "connected" : "disconnected"
+  );
   const [isTyping, setIsTyping] = useState(false);
   const [editingMessage, setEditingMessage] = useState(null);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
@@ -50,27 +52,23 @@ export default function ChatWindow({ sender_id, receiver, setActiveTab }) {
     angry: "😠",
   };
 
-  // Initialize socket connection
   useEffect(() => {
-    if (sender_id) {
-      socket.connect();
+    const handleConnect = () => setSocketStatus("connected");
+    const handleDisconnect = () => setSocketStatus("disconnected");
 
-      socket.on("connect", () => {
-        setSocketStatus("connected");
-      });
-
-      socket.on("disconnect", () => {
-        setSocketStatus("disconnected");
-      });
-
-      socket.emit("register", {});
+    // 🔥 sync immediately
+    if (socket.connected) {
+      setSocketStatus("connected");
     }
 
+    socket.on("connect", handleConnect);
+    socket.on("disconnect", handleDisconnect);
+
     return () => {
-      socket.off("connect");
-      socket.off("disconnect");
+      socket.off("connect", handleConnect);
+      socket.off("disconnect", handleDisconnect);
     };
-  }, [sender_id]);
+  }, []);
 
   // Fetch existing messages
   useEffect(() => {

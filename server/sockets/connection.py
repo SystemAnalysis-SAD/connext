@@ -63,7 +63,7 @@ def handle_disconnect():
 # =========================
 # REGISTER USER (AFTER CONNECT)
 # =========================
-@socketio.on("register")
+""" @socketio.on("register")
 def handle_register(data=None):
     try:
         user_id = request.environ.get("user_id")
@@ -95,7 +95,7 @@ def handle_register(data=None):
 
     except Exception as e:
         print(f"❌ REGISTER ERROR: {e}")
-        disconnect()
+        disconnect() """
 
 
 # =========================
