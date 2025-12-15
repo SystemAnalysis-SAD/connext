@@ -4,6 +4,6 @@ from flask_jwt_extended import JWTManager
 
 # Initialize extensions
 socketio = SocketIO(cors_allowed_origins="*",
-                async_mode='gevent')  
+                async_mode='eventlet')  
 bcrypt = Bcrypt()
 jwt = JWTManager()
