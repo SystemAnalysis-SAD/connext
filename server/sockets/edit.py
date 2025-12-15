@@ -2,7 +2,7 @@ from flask import request, Blueprint
 from extensions import socketio
 from flask_socketio import emit
 from Models.get_db_connection import get_db_connection
-import datetime
+from datetime import datetime
 import pytz
 from Utils.rooms import private_room
 
