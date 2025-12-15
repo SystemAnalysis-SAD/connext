@@ -127,6 +127,7 @@ def schedule_token_refresh(user_id, sid):
     print(f"🔄 Started auto-refresh for user {user_id}")
 
 @socketio.on("register")
+@jwt_required()
 def handle_register(data):
     try:
         # Get user_id from JWT instead of from data
