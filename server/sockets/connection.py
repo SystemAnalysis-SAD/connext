@@ -11,7 +11,6 @@ from Models.get_db_connection import get_db_connection
 
 
 @socketio.on("connect")
-@jwt_required()
 def handle_connect():
     try:
         # Verify the token
@@ -130,7 +129,7 @@ def schedule_token_refresh(user_id, sid):
 def handle_register(data):
     try:
         # Get user_id from JWT instead of from data
-        verify_jwt_in_request(optional=False)
+        #verify_jwt_in_request(optional=False)
         user_id = str(get_jwt_identity())
         
         # Check if user is already registered with different SID
