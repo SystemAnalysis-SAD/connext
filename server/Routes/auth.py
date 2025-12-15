@@ -196,6 +196,7 @@ def register():
 
 
 @auth_bp.route("/api/profile", methods=['GET']) 
+@jwt_required()
 def profile():
     try:
         current_user_id = get_jwt_identity()
