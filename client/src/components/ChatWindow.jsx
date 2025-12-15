@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { socket } from "../socket";
-import axios from "axios";
+import { reactionEmojis, getLastSeenMessage } from "../utility/chatUtils";
 import {
   Send,
   Paperclip,
@@ -21,6 +21,9 @@ import { FiArrowLeft } from "react-icons/fi";
 import EmojiPicker from "emoji-picker-react";
 import { API_URL } from "../config/config";
 import api from "../api/api";
+import MessageInput from "./MessageInput";
+import TypingIndicator from "./TypingIndicator";
+import ChatHeader from "./ChatHeader";
 
 export default function ChatWindow({ sender_id, receiver, setActiveTab }) {
   const [messages, setMessages] = useState([]);
@@ -41,16 +44,43 @@ export default function ChatWindow({ sender_id, receiver, setActiveTab }) {
   const menuRef = useRef(null);
   const reactionPickerRef = useRef(null);
   const touchTimerRef = useRef(null);
+  const [emojiSheetOffset, setEmojiSheetOffset] = useState(0);
+  const startYRef = useRef(0);
+
+  useEffect(() => {
+    const handleResize = () => {
+      // Close emoji picker on resize
+      setShowEmojiPicker(false);
+    };
+
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
+  const handleTouchStartEmojiSheet = (e) => {
+    startYRef.current = e.touches[0].clientY;
+  };
+
+  const handleTouchMoveEmojiSheet = (e) => {
+    const deltaY = e.touches[0].clientY - startYRef.current;
+    if (deltaY > 0) {
+      // only drag down
+      setEmojiSheetOffset(deltaY);
+    }
+  };
+
+  const handleTouchEndEmojiSheet = () => {
+    if (emojiSheetOffset > 100) {
+      // Close if dragged down more than 100px
+      setShowEmojiPicker(false);
+    }
+    setEmojiSheetOffset(0);
+  };
 
   // Reaction emoji mapping
-  const reactionEmojis = {
-    like: "👍",
-    love: "❤️",
-    haha: "😂",
-    wow: "😮",
-    sad: "😢",
-    angry: "😠",
-  };
 
   useEffect(() => {
     const handleConnect = () => setSocketStatus("connected");
@@ -292,6 +322,44 @@ export default function ChatWindow({ sender_id, receiver, setActiveTab }) {
     };
   }, []);
 
+  const getUserReaction = (message, senderId) => {
+    if (!message.reactions) return null;
+    try {
+      const reactions =
+        typeof message.reactions === "string"
+          ? JSON.parse(message.reactions)
+          : message.reactions;
+      for (const [type, users] of Object.entries(reactions)) {
+        if (users.includes(senderId.toString())) return type;
+      }
+      return null;
+    } catch (err) {
+      console.error("Error parsing reactions:", err);
+      return null;
+    }
+  };
+
+  const getMessageReactions = (message, senderId) => {
+    if (!message.reactions) return [];
+    try {
+      const reactions =
+        typeof message.reactions === "string"
+          ? JSON.parse(message.reactions)
+          : message.reactions;
+      return Object.entries(reactions)
+        .filter(([type, users]) => Array.isArray(users) && users.length > 0)
+        .map(([type, users]) => ({
+          type,
+          count: users.length,
+          emoji: reactionEmojis[type],
+          hasReacted: users.includes(senderId.toString()),
+        }));
+    } catch (err) {
+      console.error("Error parsing reactions:", err);
+      return [];
+    }
+  };
+
   // Clean up touch timer on unmount
   useEffect(() => {
     return () => {
@@ -480,50 +548,8 @@ export default function ChatWindow({ sender_id, receiver, setActiveTab }) {
   };
 
   // Get the user's reaction for a message
-  const getUserReaction = (message) => {
-    if (!message.reactions) return null;
-
-    try {
-      const reactions =
-        typeof message.reactions === "string"
-          ? JSON.parse(message.reactions)
-          : message.reactions;
-
-      for (const [reactionType, users] of Object.entries(reactions)) {
-        if (users.includes(sender_id.toString())) {
-          return reactionType;
-        }
-      }
-      return null;
-    } catch (err) {
-      console.error("Error parsing reactions:", err);
-      return null;
-    }
-  };
 
   // Get all reactions for a message with counts
-  const getMessageReactions = (message) => {
-    if (!message.reactions) return [];
-
-    try {
-      const reactions =
-        typeof message.reactions === "string"
-          ? JSON.parse(message.reactions)
-          : message.reactions;
-
-      return Object.entries(reactions)
-        .filter(([type, users]) => Array.isArray(users) && users.length > 0)
-        .map(([type, users]) => ({
-          type,
-          count: users.length,
-          emoji: reactionEmojis[type],
-          hasReacted: users.includes(sender_id.toString()),
-        }));
-    } catch (err) {
-      console.error("Error parsing reactions:", err);
-      return [];
-    }
-  };
 
   // Get status text
   const getStatusText = () => {
@@ -533,17 +559,7 @@ export default function ChatWindow({ sender_id, receiver, setActiveTab }) {
     return "Active now";
   };
 
-  // Get last seen message
-  const getLastSeenMessage = () => {
-    const ourMessages = messages.filter((msg) => msg.sender_id == sender_id);
-    const seenMessages = ourMessages.filter((msg) => msg.is_seen);
-
-    if (seenMessages.length === 0) return null;
-
-    return seenMessages[seenMessages.length - 1];
-  };
-
-  const lastSeenMessage = getLastSeenMessage();
+  const lastSeenMessage = getLastSeenMessage(messages, sender_id);
 
   if (!receiver) {
     return (
@@ -564,51 +580,12 @@ export default function ChatWindow({ sender_id, receiver, setActiveTab }) {
   return (
     <div className="flex flex-col h-full w-full">
       {/* Header */}
-      <div className="fixed w-full top-0 backdrop-blur-lg bg-black/30 z-10 border-b border-gray-800">
-        <div className="flex items-center justify-between px-4 py-4 md:pr-100">
-          {/* Left: Back button (mobile only) */}
-
-          {/* Center: User info */}
-          <div className="flex items-center justify-between md:justify-start">
-            <div className="md:hidden">
-              <button
-                onClick={() => setActiveTab("user")}
-                className="p-2 hover:bg-gray-800 rounded-full transition-colors mr-2"
-              >
-                <FiArrowLeft className="text-xl text-gray-300" />
-              </button>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="relative">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 flex items-center justify-center text-white font-semibold">
-                  {receiver.first_name.charAt(0).toUpperCase()}
-                </div>
-                <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-[var(--black)]"></div>
-              </div>
-              <div className="text-center md:text-left">
-                <h2 className="font-bold text-white">
-                  {receiver.first_name}&nbsp;{receiver.last_name}
-                </h2>
-                <div className="flex items-center justify-center md:justify-start gap-1">
-                  <div
-                    className={`w-2 h-2 rounded-full ${
-                      isTyping ? "bg-yellow-500 animate-pulse" : "bg-green-500"
-                    }`}
-                  ></div>
-                  <p className="text-xs text-gray-400">{getStatusText()}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Right: Menu button */}
-          <div className="flex items-center">
-            <button className="p-2 hover:bg-gray-800 rounded-full transition-colors">
-              <MoreVertical className="w-5 h-5 text-gray-300" />
-            </button>
-          </div>
-        </div>
-      </div>
+      <ChatHeader
+        receiver={receiver}
+        setActiveTab={setActiveTab}
+        isTyping={isTyping}
+        getStatusText={getStatusText}
+      />
 
       {/* Chat Messages */}
       <div className="flex-1  overflow-y-auto bg-[var(--black)] p-4">
@@ -627,21 +604,29 @@ export default function ChatWindow({ sender_id, receiver, setActiveTab }) {
               </p>
             </div>
           ) : (
-            <div className="space-y-2 pt-20">
+            <div className="space-y-0 pt-20">
               {messages.map((msg, index) => {
                 const isSender = msg.sender_id == sender_id;
                 const isLastMessage = index === messages.length - 1;
                 const isLastSeenMessage =
                   lastSeenMessage &&
                   msg.message_id === lastSeenMessage.message_id;
-                const userReaction = getUserReaction(msg);
-                const messageReactions = getMessageReactions(msg);
+
+                // Determine if this is the last message in a consecutive block from the same sender
+                const isLastInBlock =
+                  index === messages.length - 1 ||
+                  messages[index + 1].sender_id !== msg.sender_id;
+
+                const userReaction = getUserReaction(msg, msg.sender_id);
+                const messageReactions = getMessageReactions(
+                  msg,
+                  msg.sender_id
+                );
                 const totalReactions = messageReactions.reduce(
                   (sum, r) => sum + r.count,
                   0
                 );
 
-                // Check if this message is touched (for mobile)
                 const isTouched = touchedMessage === msg.message_id;
 
                 return (
@@ -651,22 +636,14 @@ export default function ChatWindow({ sender_id, receiver, setActiveTab }) {
                       isSender ? "justify-end" : "justify-start"
                     }`}
                   >
-                    {!isSender && (
-                      <div className="relative pr-2 bottom-0 mt-auto">
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 flex items-center justify-center text-white font-semibold">
-                          {receiver.first_name.charAt(0).toUpperCase()}
-                        </div>
-                      </div>
-                    )}
-
                     <div
                       className={`relative max-w-[50%] md:max-w-[50%] ${
                         isSender
                           ? "mr-2 items-end justify-end flex flex-col"
-                          : "ml-2"
+                          : "ml-2 flex flex-col"
                       }`}
                     >
-                      {/* Message bubble with touch handlers */}
+                      {/* Message bubble */}
                       <div className="relative">
                         <span
                           className={`text-xs ${
@@ -675,21 +652,21 @@ export default function ChatWindow({ sender_id, receiver, setActiveTab }) {
                         >
                           {msg.is_edited && (
                             <span
-                              className={`italic   ${
+                              className={`italic ${
                                 isSender
-                                  ? "flex items-end justify-end  "
-                                  : "ml-1"
-                              } `}
+                                  ? "flex items-end justify-end "
+                                  : "ml-10"
+                              }`}
                             >
                               (edited)
                             </span>
                           )}
                         </span>
                         <div
-                          className={`rounded-3xl w-fit px-4 py-2 flex ${
+                          className={`rounded-3xl relative w-fit px-4 py-2 flex ${
                             isSender
                               ? "bg-gradient-to-r from-blue-600 to-blue-700 relative text-white rounded-br-sm"
-                              : "bg-gray-600 text-gray-100 rounded-bl-sm"
+                              : "bg-gray-600 text-gray-100 rounded-bl-sm ml-10"
                           }`}
                           onClick={(e) =>
                             isMobile() &&
@@ -706,15 +683,12 @@ export default function ChatWindow({ sender_id, receiver, setActiveTab }) {
                           </p>
                         </div>
 
-                        {/* 3-dot menu button - shown on hover (desktop) or when touched (mobile) */}
                         {isTouched ||
-                          (window.innerWidth >= 768 && (
+                          (window.innerWidth >= 700 && (
                             <button
                               onClick={(e) => toggleMenu(msg.message_id, e)}
                               className={`absolute top-1/2 -translate-y-1/2 transition-opacity duration-200 ${
-                                isSender
-                                  ? "-left-10" // Left side for sender's messages
-                                  : "-right-10" // Right side for receiver's messages
+                                isSender ? "-left-10" : "-right-10"
                               } ${
                                 isMobile()
                                   ? "opacity-100"
@@ -724,88 +698,91 @@ export default function ChatWindow({ sender_id, receiver, setActiveTab }) {
                               <MoreHorizontal className="w-5 h-5 text-gray-400 hover:text-gray-300" />
                             </button>
                           ))}
-                      </div>
 
-                      {/* 3-dot menu dropdown */}
-                      {activeMenu === msg.message_id && (
-                        <div
-                          ref={menuRef}
-                          className={`absolute top-0 z-50 bg-gray-800 rounded-lg shadow-xl border border-gray-700 min-w-32 ${
-                            isSender
-                              ? "left-0 -translate-x-full mr-2"
-                              : "right-0 translate-x-full ml-2"
-                          }`}
-                        >
-                          {/* Only show edit option for sender's own messages */}
-                          {isSender && (
-                            <button
-                              onClick={() => handleEditMessage(msg)}
-                              className="w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 rounded-t-lg transition-colors"
-                            >
-                              <Edit2 className="w-4 h-4" />
-                              Edit
-                            </button>
-                          )}
-
-                          {/* Show react option for all messages */}
-                          <button
-                            onClick={() => openReactionPicker(msg.message_id)}
-                            className="w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 rounded-b-lg transition-colors"
+                        {activeMenu === msg.message_id && (
+                          <div
+                            ref={menuRef}
+                            className={`absolute top-0 z-9 bg-gray-800 rounded-lg shadow-xl border border-gray-700 min-w-32 ${
+                              isSender
+                                ? "left-0 -translate-x-full mr-2"
+                                : "right-0 translate-x-full ml-2"
+                            }`}
                           >
-                            <Heart className="w-4 h-4" />
-                            React
-                          </button>
-                        </div>
-                      )}
-
-                      {/* Reaction picker */}
-                      {reactionPicker === msg.message_id && (
-                        <div
-                          ref={reactionPickerRef}
-                          className={`absolute z-50 bg-gray-800 rounded-full px-2 shadow-xl border border-gray-700 flex items-center ${
-                            isSender
-                              ? "translate-y-0 mt-2  md: md:-translate-y-0  md:-top-8"
-                              : " translate-x-0 -top-10"
-                          }`}
-                        >
-                          {Object.entries(reactionEmojis).map(
-                            ([type, emoji]) => (
+                            {" "}
+                            {/* Only show edit option for sender's own messages */}{" "}
+                            {isSender && (
                               <button
-                                key={type}
-                                onClick={() =>
-                                  addReaction(msg.message_id, type)
-                                }
-                                className="w-8 h-8 flex items-center justify-center text-lg hover:scale-125 transition-transform duration-150 reaction-emoji-btn"
-                                title={
-                                  type.charAt(0).toUpperCase() + type.slice(1)
-                                }
+                                onClick={() => handleEditMessage(msg)}
+                                className="w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 rounded-t-lg transition-colors"
                               >
-                                {emoji}
+                                {" "}
+                                <Edit2 className="w-4 h-4" /> Edit{" "}
                               </button>
-                            )
-                          )}
-                        </div>
-                      )}
+                            )}{" "}
+                            {/* Show react option for all messages */}{" "}
+                            <button
+                              onClick={() => openReactionPicker(msg.message_id)}
+                              className="w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 rounded-b-lg transition-colors"
+                            >
+                              {" "}
+                              <Heart className="w-4 h-4" /> React{" "}
+                            </button>{" "}
+                          </div>
+                        )}
 
-                      {/* Message metadata and reactions */}
+                        {reactionPicker === msg.message_id && (
+                          <div
+                            ref={reactionPickerRef}
+                            className={` absolute z-10 bg-gray-800 rounded-full px-2 shadow-xl border border-gray-700 flex items-center ${
+                              isSender
+                                ? "translate-y-0 mt-2 md: md:-translate-y-0 md:-top-8"
+                                : " translate-x-0 -top-10"
+                            }`}
+                          >
+                            {" "}
+                            {Object.entries(reactionEmojis).map(
+                              ([type, emoji]) => (
+                                <button
+                                  key={type}
+                                  onClick={() =>
+                                    addReaction(msg.message_id, type)
+                                  }
+                                  className="w-8 h-8 flex items-center justify-center text-lg hover:scale-125 transition-transform duration-150 reaction-emoji-btn"
+                                  title={
+                                    type.charAt(0).toUpperCase() + type.slice(1)
+                                  }
+                                >
+                                  {" "}
+                                  {emoji}{" "}
+                                </button>
+                              )
+                            )}{" "}
+                          </div>
+                        )}
+
+                        {!isSender && isLastInBlock && (
+                          <div className="absolute w-8 h-8  bottom-0">
+                            <div className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 flex items-center justify-center text-white font-semibold text-sm">
+                              {receiver.first_name.charAt(0).toUpperCase()}
+                            </div>
+                          </div>
+                        )}
+                      </div>
                       <div
-                        className={`flex  flex-row-reverse w-full justify-between gap-2 ${
+                        className={`flex flex-row-reverse w-full justify-between gap-2 mt-1 ${
                           isSender ? "justify-between" : "justify-start"
                         }`}
                       >
-                        {/* Reactions display */}
                         {totalReactions > 0 && (
                           <div
-                            className={` -translate-y-4 items-center  py-1 text-md ${
-                              isSender ? "order-2 relative" : "order-1 absolute"
+                            className={`-translate-y-2.5 bg-gray-600 items-center py-0 rounded-full border-[var(--black)] border-2 text-[13px] pb-0.5 px-1 z-9 text-md ${
+                              isSender ? "order-2 relative" : "order-1 relative"
                             }`}
                           >
                             {messageReactions
                               .slice(0, 2)
                               .map((reaction, idx) => (
-                                <span key={idx} className="">
-                                  {reaction.emoji}
-                                </span>
+                                <span key={idx}>{reaction.emoji}</span>
                               ))}
                             {totalReactions > 3 && (
                               <span className="text-gray-300 ml-1">
@@ -814,31 +791,23 @@ export default function ChatWindow({ sender_id, receiver, setActiveTab }) {
                             )}
                           </div>
                         )}
-
-                        {/* Time and status */}
-                        <div
-                          className={`flex items-center gap-1 ${
-                            isSender ? "order-1" : "order-2"
-                          }`}
-                        >
-                          {/* Check marks for sender's messages */}
-                          {isSender && isLastMessage && msg.is_seen && (
-                            <div className="flex items-center gap-1">
-                              <CheckCheck className="w-3 h-3 text-blue-400" />
-                              {isLastSeenMessage && (
-                                <span className="text-xs text-blue-400">
-                                  Seen
-                                </span>
-                              )}
-                            </div>
-                          )}
-
-                          {/* Single check for last message sent but not seen */}
-                          {isSender && isLastMessage && !msg.is_seen && (
-                            <Check className="w-3 h-3 text-gray-400" />
-                          )}
-                        </div>
                       </div>
+                      {isSender && isLastMessage && msg.is_seen && (
+                        <div className="flex items-center gap-1">
+                          {" "}
+                          <CheckCheck className="w-3 h-3 text-blue-400" />{" "}
+                          {isLastSeenMessage && (
+                            <span className="text-xs text-blue-400">
+                              {" "}
+                              Seen{" "}
+                            </span>
+                          )}{" "}
+                        </div>
+                      )}{" "}
+                      {/* Single check for last message sent but not seen */}{" "}
+                      {isSender && isLastMessage && !msg.is_seen && (
+                        <Check className="w-3 h-3 text-gray-400" />
+                      )}
                     </div>
                   </div>
                 );
@@ -846,110 +815,28 @@ export default function ChatWindow({ sender_id, receiver, setActiveTab }) {
             </div>
           )}
 
-          {/* Typing indicator */}
-          {isTyping && (
-            <div className="flex justify-start mb-4">
-              <div className="relative pr-2 bottom-0 mt-auto">
-                <div className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 flex items-center justify-center text-white font-semibold">
-                  {receiver.first_name.charAt(0).toUpperCase()}
-                </div>
-              </div>
-              <div className="max-w-[70%]">
-                <div className="bg-gray-600 rounded-3xl rounded-bl-sm px-4 py-3">
-                  <div className="flex space-x-1">
-                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                    <div
-                      className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
-                      style={{ animationDelay: "0.2s" }}
-                    ></div>
-                    <div
-                      className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
-                      style={{ animationDelay: "0.4s" }}
-                    ></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
+          {isTyping && <TypingIndicator receiver={receiver} />}
 
           <div ref={messagesEndRef} />
         </div>
       </div>
 
       {/* Message Input */}
-      <div className="sticky bottom-0 border-t border-gray-800 bg-[var(--black)] p-4">
-        <div className="w-full mx-auto">
-          {editingMessage && (
-            <div className="mb-2 text-sm text-yellow-400 flex items-center gap-2">
-              <Edit2 className="w-4 h-4" />
-              <span>Editing message • </span>
-              <button
-                onClick={cancelEdit}
-                className="text-yellow-300 hover:text-yellow-200 underline"
-              >
-                Cancel
-              </button>
-            </div>
-          )}
-          <div className="flex items-end gap-2">
-            {/* Emoji picker */}
-            {showEmojiPicker && (
-              <div className="absolute bottom-20 left-4 z-50">
-                <EmojiPicker
-                  onEmojiClick={(emojiData) => {
-                    setText((prev) => prev + emojiData.emoji);
-                    textareaRef.current?.focus();
-                  }}
-                  theme="dark"
-                />
-              </div>
-            )}
-
-            {/* Text input */}
-            <div className="flex-1 relative min-w-0">
-              <textarea
-                ref={textareaRef}
-                className="w-full bg-black/50 overflow-hidden border border-gray-700 rounded-full px-4 py-3 pr-12 focus:outline-none focus:ring-1 focus:ring-blue-800/70 focus:border-transparent resize-none text-white placeholder-gray-500"
-                value={text}
-                onChange={handleTextChange}
-                onKeyPress={handleKeyPress}
-                placeholder={
-                  editingMessage ? "Edit your message..." : "Type a message..."
-                }
-                rows="1"
-                style={{
-                  minHeight: "44px",
-                  maxHeight: "120px",
-                  lineHeight: "1.5",
-                }}
-              />
-              <button
-                onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 p-1 hover:bg-gray-800 rounded-full transition-colors"
-              >
-                <Smile className="w-5 h-5 text-gray-300" />
-              </button>
-            </div>
-
-            {/* Send button */}
-            <button
-              className={`p-3 rounded-full transition-all duration-200 flex-shrink-0 ${
-                text.trim() && socketStatus === "connected"
-                  ? "bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white"
-                  : "bg-gray-800 text-gray-500 cursor-not-allowed"
-              }`}
-              onClick={sendMessage}
-              disabled={!text.trim() || socketStatus !== "connected"}
-            >
-              {editingMessage ? (
-                <Edit2 className="w-5 h-5" />
-              ) : (
-                <Send className="w-5 h-5" />
-              )}
-            </button>
-          </div>
-        </div>
-      </div>
+      <MessageInput
+        editingMessage={editingMessage}
+        cancelEdit={cancelEdit}
+        showEmojiPicker={showEmojiPicker}
+        setShowEmojiPicker={setShowEmojiPicker}
+        emojiSheetOffset={emojiSheetOffset}
+        handleTouchStartEmojiSheet={handleTouchStartEmojiSheet}
+        handleTouchMoveEmojiSheet={handleTouchMoveEmojiSheet}
+        handleTouchEndEmojiSheet={handleTouchEndEmojiSheet}
+        textareaRef={textareaRef}
+        text={text}
+        handleTextChange={handleTextChange}
+        handleKeyPress={handleKeyPress}
+        sendMessage={sendMessage}
+      />
     </div>
   );
 }
