@@ -20,25 +20,30 @@ bcrypt.init_app(app)
 socketio.init_app(app
                 )
 
+
 # ---------------- BLUEPRINTS ----------------
 from Routes.auth import auth_bp
 from Routes.message_routes1 import message_bp
-from sockets.connection import connection_bp
-from sockets.messaging import messaging_bp
-from sockets.edit import edit_bp
-from sockets.reactions import reactions_bp
-from sockets.seen import seen_bp
-from sockets.typing import typing_bp
+#rest
+app.register_blueprint(auth_bp)
+app.register_blueprint(message_bp)
+
+
+import sockets.connection
+import sockets.connection
+import sockets.messaging
+import sockets.edit
+import sockets.reactions
+import sockets.seen
+import sockets.typing
 
 #sockets
-app.register_blueprint(connection_bp)
+""" app.register_blueprint(connection_bp)
 app.register_blueprint(messaging_bp)
 app.register_blueprint(edit_bp)
 app.register_blueprint(reactions_bp)
 app.register_blueprint(seen_bp)
-app.register_blueprint(typing_bp)
+app.register_blueprint(typing_bp) """
 
-#rest
-app.register_blueprint(auth_bp)
-app.register_blueprint(message_bp)
+
 

@@ -11,6 +11,7 @@ export const socket = io(`${API_URL}`, {
   reconnectionDelayMax: 5000,
   timeout: 20000,
   autoConnect: false, // We'll connect manually
+  withCredentials: true,
 });
 
 socket.on("connect", () => {

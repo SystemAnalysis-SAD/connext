@@ -1,4 +1,4 @@
-from flask import request, Blueprint
+from flask import request
 from flask_socketio import disconnect, emit
 from flask_jwt_extended import verify_jwt_in_request, get_jwt_identity, create_access_token, jwt_required
 from extensions import socketio
@@ -9,7 +9,6 @@ import time
 from datetime import timedelta
 from Models.get_db_connection import get_db_connection
 
-connection_bp = Blueprint("connection", __name__)
 
 @socketio.on("connect")
 @jwt_required()
