@@ -10,12 +10,12 @@ from datetime import datetime
 messaging_bp = Blueprint("messaging", __name__)
 
 @socketio.on("send_message")
-@jwt_required()
 def handle_send_message(data):
     try:
         # Get current user from JWT
         #verify_jwt_in_request(optional=False)
-        sender_id = str(get_jwt_identity())
+        #sender_id = str(get_jwt_identity())
+        sender_id = request.environ.get("user_id")
         
         # Get receiver and content from data
         receiver_id = str(data.get("receiver_id", ""))

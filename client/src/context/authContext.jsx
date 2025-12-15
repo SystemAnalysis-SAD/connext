@@ -16,6 +16,22 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true); // Start as true for initial check
   const [message, setMessage] = useState("");
 
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    const storedUser = localStorage.getItem("_u");
+
+    if (token && storedUser) {
+      try {
+        setUser(JSON.parse(storedUser));
+        connectSocket(token); // auto-connect socket with JWT
+      } catch (err) {
+        console.error("Error parsing stored user:", err);
+        localStorage.removeItem("_u");
+        localStorage.removeItem("token");
+      }
+    }
+  }, []); // runs once on mount
+
   // Helper: show a message temporarily
   const showMessage = (msg, duration = 3000) => {
     setMessage(msg);
@@ -25,28 +41,11 @@ export const AuthProvider = ({ children }) => {
   // Fetch user from cookie and verify with backend
   const fetchUserProfile = async () => {
     try {
-      const cookie = Cookies.get("_u");
-      if (!cookie) {
-        setUser(null);
-        return;
-      }
-
-      // Try to decode the cookie
-      try {
-        const decode = decodeURIComponent(decodeURIComponent(cookie));
-        const parse = JSON.parse(decode);
-
-        const res = await api.get(`${API_URL}/api/profile`);
-        /* localStorage.setItem("token", Cookies.get("token")); */
-        setUser(parse?.uid);
-      } catch (decodeError) {
-        console.error("Error decoding cookie:", decodeError);
-        setUser(null);
-        Cookies.remove("_u"); // Remove invalid cookie
-      }
-    } catch (error) {
-      console.error("Failed to fetch profile:", error);
+      const res = await api.get(`${API_URL}/api/profile`);
+    } catch (decodeError) {
+      console.error("Error decoding cookie:", decodeError);
       setUser(null);
+      Cookies.remove("_u"); // Remove invalid cookie
     }
   };
 
@@ -69,15 +68,21 @@ export const AuthProvider = ({ children }) => {
     try {
       const response = await api.post(`${API_URL}/api/login`, loginData);
 
-      const { user } = response.data;
+      const { token, user } = response.data;
+
+      if (!token || !user) {
+        throw new Error("Invalid login response");
+      }
 
       localStorage.setItem("_u", JSON.stringify(user));
+      localStorage.setItem("token", token);
 
       // ✅ Update state
       setUser(user);
 
       // ✅ CONNECT SOCKET WITH JWT
-      connectSocket(user?.uid);
+      connectSocket(localStorage.getItem("token"));
+      await fetchUserProfile();
 
       showMessage("Login successful!");
     } catch (err) {

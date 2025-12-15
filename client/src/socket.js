@@ -45,13 +45,17 @@ export const disconnectSocket = () => {
 
 socket.on("connect", () => {
   console.log("✅ Socket connected:", socket.id);
-
-  // Register AFTER successful connection
-  socket.emit("register");
+  socket.emit("register"); // register after connect
 });
 
 socket.on("disconnect", (reason) => {
   console.log("❌ Socket disconnected:", reason);
+
+  if (reason === "io server disconnect") {
+    // server forcibly disconnected, reconnect manually
+    const token = localStorage.getItem("token");
+    connectSocket(token);
+  }
 });
 
 socket.on("connect_error", (err) => {

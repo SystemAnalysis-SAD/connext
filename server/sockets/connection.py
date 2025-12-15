@@ -21,15 +21,44 @@ def handle_connect(auth):
         decoded = decode_token(token)
         user_id = str(decoded["sub"])
 
-        # store user_id on this connection
+        # Store user_id in this request
         request.environ["user_id"] = user_id
 
-        print(f"✅ SOCKET CONNECTED | user={user_id} | sid={request.sid}")
+        # Register the user immediately
+        existing_sid = online_manager.get_user_sid(user_id)
+        if existing_sid and existing_sid != request.sid:
+            online_manager.remove_user(user_id)
+            stop_refresh_timer(user_id)
+
+        online_manager.add_user(user_id, request.sid)
+        schedule_token_refresh(user_id, request.sid)
+
+        emit(
+            "user_online",
+            {"user_id": user_id, "timestamp": datetime.utcnow().isoformat()},
+            broadcast=True,
+            include_self=False,
+        )
+
+        emit(
+            "online_users_list",
+            {"online_users": online_manager.get_all_users()},
+            room=request.sid,
+        )
+
+        print(f"✅ SOCKET CONNECTED & USER REGISTERED | user={user_id} | sid={request.sid}")
 
     except Exception as e:
         print(f"❌ SOCKET AUTH FAILED: {e}")
         disconnect()
 
+@socketio.on("disconnect")
+def handle_disconnect():
+    uid = online_manager.remove_user_by_sid(request.sid)
+    if uid:
+        stop_refresh_timer(uid)
+        emit("user_offline", {"user_id": uid}, broadcast=True)
+        print(f"🔴 USER DISCONNECTED | user={uid}")
 
 # =========================
 # REGISTER USER (AFTER CONNECT)
@@ -72,13 +101,7 @@ def handle_register(data=None):
 # =========================
 # DISCONNECT
 # =========================
-@socketio.on("disconnect")
-def handle_disconnect():
-    uid = online_manager.remove_user_by_sid(request.sid)
-    if uid:
-        stop_refresh_timer(uid)
-        emit("user_offline", {"user_id": uid}, broadcast=True)
-        print(f"🔴 USER DISCONNECTED | user={uid}")
+
 
 
 # =========================

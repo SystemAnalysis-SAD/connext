@@ -23,7 +23,7 @@ function App() {
         <Route path="/" element={<LoadingScreen />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/messages" element={<Messages id={user} />} />
+        <Route path="/messages" element={<Messages id={user?.uid} />} />
       </Routes>
     </Router>
   );
