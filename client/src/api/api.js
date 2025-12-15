@@ -97,8 +97,8 @@ api.interceptors.response.use(
       // Final fallback: redirect to login
       localStorage.removeItem("_u");
       localStorage.removeItem("currentUserId");
-      if (window.location.pathname !== "#/login") {
-        window.location.href = "#/login";
+      if (window.location.pathname !== "/#/login") {
+        window.location.href = "/#/login";
       }
       return Promise.reject(error);
     }
@@ -231,7 +231,7 @@ api.interceptors.response.use(
         // Clear auth data and redirect to login
         localStorage.removeItem("_u");
         localStorage.removeItem("currentUserId");
-        window.location.href = "/login";
+        window.location.href = "/#/login";
       }
     }
 
