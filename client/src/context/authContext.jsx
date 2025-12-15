@@ -2,6 +2,7 @@ import axios from "axios";
 import { API_URL } from "../config/config";
 import { useState, useEffect, createContext, useContext } from "react";
 import api from "../api/api";
+import { connectSocket } from "../socket";
 import Cookies from "js-cookie";
 import LoadingScreen from "../components/loadingScreen";
 
@@ -64,24 +65,21 @@ export const AuthProvider = ({ children }) => {
   const login = async (loginData) => {
     setLoading(true);
     setMessage("");
+
     try {
       const response = await api.post(`${API_URL}/api/login`, loginData);
 
-      if (response.data.message) {
-        showMessage("Login successful!");
-        // Force check the cookie immediately after login
-        const cookie = Cookies.get("_u");
-        if (cookie) {
-          try {
-            const decode = decodeURIComponent(decodeURIComponent(cookie));
-            const parse = JSON.parse(decode);
-            setUser(parse?.uid);
-          } catch (err) {
-            console.error("Error parsing cookie after login:", err);
-            await fetchUserProfile(); // Fallback to API call
-          }
-        }
-      }
+      const { user } = response.data;
+
+      localStorage.setItem("_u", JSON.stringify(user));
+
+      // ✅ Update state
+      setUser(user);
+
+      // ✅ CONNECT SOCKET WITH JWT
+      connectSocket(user?.uid);
+
+      showMessage("Login successful!");
     } catch (err) {
       showMessage(err?.response?.data?.err || "Login failed");
     } finally {

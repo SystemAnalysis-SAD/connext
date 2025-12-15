@@ -56,6 +56,7 @@ def login():
         encode = urllib.parse.quote(json.dumps(userData))
         
         response = make_response(jsonify({
+            "token": access_token,
             "message": "success",
             "user": userData  # Also return user data in response
         }), 200)

@@ -1,39 +1,67 @@
-// socket.js - Your socket initialization file
+// socket.js
 import { io } from "socket.io-client";
 import { API_URL } from "./config/config";
 
-// Create a SINGLE socket instance
-export const socket = io(`${API_URL}`, {
-  transports: ["websocket", "polling"],
+// SINGLE socket instance
+export const socket = io(API_URL, {
+  autoConnect: false, // manual connect
+  transports: ["websocket"], // IMPORTANT for Render/Vercel
+  withCredentials: true,
   reconnection: true,
   reconnectionAttempts: 10,
   reconnectionDelay: 1000,
-  reconnectionDelayMax: 5000,
   timeout: 20000,
-  autoConnect: false, // We'll connect manually
-  withCredentials: true,
 });
 
+/**
+ * CONNECT SOCKET WITH JWT
+ */
+export const connectSocket = (accessToken) => {
+  if (!accessToken) {
+    console.warn("⚠️ No token provided for socket connection");
+    return;
+  }
+
+  // Attach JWT BEFORE connecting
+  socket.auth = { token: accessToken };
+
+  if (!socket.connected) {
+    socket.connect();
+  }
+};
+
+/**
+ * DISCONNECT SOCKET
+ */
+export const disconnectSocket = () => {
+  if (socket.connected) {
+    socket.disconnect();
+  }
+};
+
+/* ===========================
+   SOCKET EVENTS
+=========================== */
+
 socket.on("connect", () => {
-  console.log("✅ Socket.IO connected:", socket.id);
+  console.log("✅ Socket connected:", socket.id);
+
+  // Register AFTER successful connection
+  socket.emit("register");
 });
 
 socket.on("disconnect", (reason) => {
-  console.log("❌ Socket.IO disconnected:", reason);
-  if (reason === "io server disconnect") {
-    // The server has forcibly disconnected the socket
-    socket.connect(); // Try to reconnect
-  }
+  console.log("❌ Socket disconnected:", reason);
 });
 
-socket.on("connect_error", (error) => {
-  console.error("❌ Socket.IO connection error:", error.message);
+socket.on("connect_error", (err) => {
+  console.error("❌ Socket connection error:", err.message);
 });
 
 socket.on("reconnect_attempt", (attempt) => {
-  console.log(`🔄 Socket.IO reconnect attempt: ${attempt}`);
+  console.log(`🔄 Reconnect attempt #${attempt}`);
 });
 
-socket.on("reconnect", (attempt) => {
-  console.log(`✅ Socket.IO reconnected after ${attempt} attempts`);
+socket.on("reconnect", () => {
+  console.log("✅ Socket reconnected");
 });
