@@ -5,7 +5,7 @@ import { API_URL } from "./config/config";
 // SINGLE socket instance
 export const socket = io(API_URL, {
   autoConnect: false, // manual connect
-  transports: ["websocket"], // IMPORTANT for Render/Vercel
+  transports: ["websocket", "polling"], // IMPORTANT for Render/Vercel
   withCredentials: true,
   reconnection: true,
   reconnectionAttempts: 10,
