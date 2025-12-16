@@ -13,7 +13,7 @@ app.config.from_object(Config)
 CORS(
     app,
     supports_credentials=True,
-    origins=["https://connext-cn.vercel.app"]
+    origins=["https://connext-cn.vercel.app", "http://localhost:5173"]
 )
 
 # ---------------- EXTENSIONS ----------------
@@ -26,9 +26,11 @@ socketio.init_app(app)
 # ---------------- BLUEPRINTS ----------------
 from Routes.auth import auth_bp
 from Routes.message_routes1 import message_bp
+from Routes.iframe_auth_bp import iframe_auth_bp
 #rest
 app.register_blueprint(auth_bp)
 app.register_blueprint(message_bp)
+app.register_blueprint(iframe_auth_bp)
 
 
 import sockets.connection
