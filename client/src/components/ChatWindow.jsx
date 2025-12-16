@@ -8,12 +8,14 @@ import {
   Edit2,
   Heart,
   MoreHorizontal,
+  X,
 } from "lucide-react";
 import { API_URL } from "../config/config";
 import api from "../api/api";
 import MessageInput from "./MessageInput";
 import TypingIndicator from "./TypingIndicator";
 import ChatHeader from "./ChatHeader";
+import { motion, AnimatePresence } from "motion/react";
 
 export default function ChatWindow({ sender_id, receiver, setActiveTab }) {
   const [messages, setMessages] = useState([]);
@@ -21,6 +23,8 @@ export default function ChatWindow({ sender_id, receiver, setActiveTab }) {
   const [socketStatus, setSocketStatus] = useState(
     socket.connected ? "connected" : "disconnected"
   );
+  const [reactionDetails, setReactionDetails] = useState(null);
+
   const [isTyping, setIsTyping] = useState(false);
   const [editingMessage, setEditingMessage] = useState(null);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
@@ -36,6 +40,11 @@ export default function ChatWindow({ sender_id, receiver, setActiveTab }) {
   const touchTimerRef = useRef(null);
   const [emojiSheetOffset, setEmojiSheetOffset] = useState(0);
   const startYRef = useRef(0);
+  const [page, setPage] = useState(0);
+
+  const handleReactionClick = (message) => {
+    setReactionDetails(message);
+  };
 
   useEffect(() => {
     const handleResize = () => {
@@ -310,23 +319,6 @@ export default function ChatWindow({ sender_id, receiver, setActiveTab }) {
     };
   }, []);
 
-  const getUserReaction = (message, senderId) => {
-    if (!message.reactions) return null;
-    try {
-      const reactions =
-        typeof message.reactions === "string"
-          ? JSON.parse(message.reactions)
-          : message.reactions;
-      for (const [type, users] of Object.entries(reactions)) {
-        if (users.includes(senderId.toString())) return type;
-      }
-      return null;
-    } catch (err) {
-      console.error("Error parsing reactions:", err);
-      return null;
-    }
-  };
-
   const getMessageReactions = (message, senderId) => {
     if (!message.reactions) return [];
     try {
@@ -535,9 +527,36 @@ export default function ChatWindow({ sender_id, receiver, setActiveTab }) {
     return window.innerWidth < 768;
   };
 
-  // Get the user's reaction for a message
+  /* ==========================
+     Scroll handler for lazy loading older messages
+  ========================== */
+  const handleScroll = () => {
+    const container = messagesContainerRef.current;
+    if (!container || loadingOlder || !hasMore) return;
+    if (container.scrollTop < 100) {
+      setPage((prev) => prev + 1);
+    }
+  };
 
-  // Get all reactions for a message with counts
+  useEffect(() => {
+    if (page === 0) return;
+    // fetch older messages when page changes
+    const fetchOlderMessages = async () => {
+      if (!receiver) return;
+      try {
+        const res = await api.get(
+          `${API_URL}/messages/${receiver.uid}?page=${page}&limit=20`,
+          { withCredentials: true }
+        );
+        const olderMessages = res.data;
+        if (olderMessages.length === 0) setHasMore(false);
+        setMessages((prev) => [...olderMessages.reverse(), ...prev]);
+      } catch (err) {
+        console.error("Error fetching older messages:", err);
+      }
+    };
+    fetchOlderMessages();
+  }, [page, receiver]);
 
   // Get status text
   const getStatusText = () => {
@@ -566,7 +585,7 @@ export default function ChatWindow({ sender_id, receiver, setActiveTab }) {
   }
 
   return (
-    <div className="flex flex-col h-full w-full">
+    <div className="flex flex-col h-full w-full ">
       {/* Header */}
       <ChatHeader
         receiver={receiver}
@@ -576,7 +595,7 @@ export default function ChatWindow({ sender_id, receiver, setActiveTab }) {
       />
 
       {/* Chat Messages */}
-      <div className="flex-1  overflow-y-auto bg-[var(--black)] p-4">
+      <div className="flex-1 overflow-x-hidden  overflow-y-auto bg-[var(--black)] px-2 py-4">
         <div className="w-full mx-auto h-auto">
           {/* Messages */}
           {messages.length === 0 ? (
@@ -605,7 +624,6 @@ export default function ChatWindow({ sender_id, receiver, setActiveTab }) {
                   index === messages.length - 1 ||
                   messages[index + 1].sender_id !== msg.sender_id;
 
-                const userReaction = getUserReaction(msg, msg.sender_id);
                 const messageReactions = getMessageReactions(
                   msg,
                   msg.sender_id
@@ -615,17 +633,25 @@ export default function ChatWindow({ sender_id, receiver, setActiveTab }) {
                   0
                 );
 
+                // Inside your messages.map
+                const isFirstBubble =
+                  index === 0 ||
+                  messages[index - 1].sender_id !== msg.sender_id;
+                const isLastBubble =
+                  index === messages.length - 1 ||
+                  messages[index + 1].sender_id !== msg.sender_id;
+
                 const isTouched = touchedMessage === msg.message_id;
 
                 return (
                   <div
                     key={msg.message_id}
-                    className={`group flex ${
+                    className={`group flex w-full ${
                       isSender ? "justify-end" : "justify-start"
                     }`}
                   >
                     <div
-                      className={`relative max-w-[50%] md:max-w-[50%] ${
+                      className={`relative  max-w-[70%] md:max-w-[50%] ${
                         isSender
                           ? "mr-2 items-end justify-end flex flex-col"
                           : "ml-2 flex flex-col"
@@ -650,25 +676,48 @@ export default function ChatWindow({ sender_id, receiver, setActiveTab }) {
                             </span>
                           )}
                         </span>
-                        <div
-                          className={`rounded-3xl relative w-fit px-4 py-2 flex ${
-                            isSender
-                              ? "bg-gradient-to-r from-blue-600 to-blue-700 relative text-white rounded-br-sm"
-                              : "bg-gray-600 text-gray-100 rounded-bl-sm ml-10"
-                          }`}
-                          onClick={(e) =>
-                            isMobile() &&
-                            handleMessageBubbleClick(msg.message_id, e)
-                          }
-                          onTouchStart={() =>
-                            isMobile() && handleTouchStart(msg.message_id)
-                          }
-                          onTouchEnd={handleTouchEnd}
-                          onTouchCancel={handleTouchCancel}
-                        >
-                          <p className="whitespace-pre-wrap break-all text-wrap">
-                            {msg.content}
-                          </p>
+
+                        <div className="flex justify-start items-center">
+                          {!isSender && isLastInBlock && (
+                            <div className="absolute w-8 h-8 ">
+                              <div className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 flex items-center justify-center text-white font-semibold text-sm">
+                                {receiver.first_name.charAt(0).toUpperCase()}
+                              </div>
+                            </div>
+                          )}
+
+                          <div
+                            className={`relative w-full  px-4 py-2 flex break-words max-w-[119%]  ${
+                              isSender
+                                ? `bg-gradient-to-r rounded-bl-3xl rounded-r-md rounded-tl-3xl from-blue-600 to-blue-700 relative text-white ${
+                                    isFirstBubble
+                                      ? "rounded-br-md rounded-l-3xl rounded-tr-3xl"
+                                      : isLastBubble
+                                      ? "rounded-tr-md  rounded-l-3xl rounded-br-3xl"
+                                      : ""
+                                  }`
+                                : `bg-gray-600 ml-10 rounded-br-3xl rounded-tr-3xl from-blue-600 to-blue-700 relative text-white ${
+                                    isFirstBubble
+                                      ? "rounded-bl-md rounded-r-3xl rounded-tl-3xl"
+                                      : isLastBubble
+                                      ? "rounded-tl-md  rounded-r-3xl rounded-bl-3xl"
+                                      : ""
+                                  }`
+                            }`}
+                            onClick={(e) =>
+                              isMobile() &&
+                              handleMessageBubbleClick(msg.message_id, e)
+                            }
+                            onTouchStart={() =>
+                              isMobile() && handleTouchStart(msg.message_id)
+                            }
+                            onTouchEnd={handleTouchEnd}
+                            onTouchCancel={handleTouchCancel}
+                          >
+                            <p className="whitespace-pre-wrap break-words text-wrap">
+                              {msg.content}
+                            </p>
+                          </div>
                         </div>
 
                         {isTouched ||
@@ -690,81 +739,78 @@ export default function ChatWindow({ sender_id, receiver, setActiveTab }) {
                         {activeMenu === msg.message_id && (
                           <div
                             ref={menuRef}
-                            className={`absolute top-0 z-9 bg-gray-800 rounded-lg shadow-xl border border-gray-700 min-w-32 ${
+                            className={`sticky w-full justify-end bottom-0 z-9  rounded-lg  flex flex-row-reverse ${
                               isSender
-                                ? "left-0 -translate-x-full mr-2"
-                                : "right-0 translate-x-full ml-2"
+                                ? "left-0 -translate-x-20 -translate-y-9  "
+                                : "right-0 translate-x-30 -translate-y-9"
                             }`}
                           >
-                            {" "}
-                            {/* Only show edit option for sender's own messages */}{" "}
+                            {/* Only show edit option for sender's own messages */}
                             {isSender && (
                               <button
                                 onClick={() => handleEditMessage(msg)}
-                                className="w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 rounded-t-lg transition-colors"
+                                className=" flex items-center gap-2  text-sm text-gray-300 hover:bg-gray-700 rounded-t-lg transition-colors"
                               >
-                                {" "}
-                                <Edit2 className="w-4 h-4" /> Edit{" "}
+                                <Edit2 className="w-4 h-4" />
                               </button>
-                            )}{" "}
-                            {/* Show react option for all messages */}{" "}
+                            )}
+                            {/* Show react option for all messages */}
                             <button
                               onClick={() => openReactionPicker(msg.message_id)}
-                              className="w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 rounded-b-lg transition-colors"
+                              className=" flex items-center gap-2 px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 rounded-b-lg transition-colors"
                             >
-                              {" "}
-                              <Heart className="w-4 h-4" /> React{" "}
-                            </button>{" "}
+                              <Heart className="w-4 h-4" />
+                            </button>
                           </div>
                         )}
 
-                        {reactionPicker === msg.message_id && (
-                          <div
-                            ref={reactionPickerRef}
-                            className={` absolute z-10 bg-gray-800 rounded-full px-2 shadow-xl border border-gray-700 flex items-center ${
-                              isSender
-                                ? "translate-y-0 right-0 mt-2 md: md:-translate-y-0 md:-top-8"
-                                : " translate-x-0 -top-10"
-                            }`}
-                          >
-                            {" "}
-                            {Object.entries(reactionEmojis).map(
-                              ([type, emoji]) => (
-                                <button
-                                  key={type}
-                                  onClick={() =>
-                                    addReaction(msg.message_id, type)
-                                  }
-                                  className="w-8 h-8 flex items-center justify-center text-lg hover:scale-125 transition-transform duration-150 reaction-emoji-btn"
-                                  title={
-                                    type.charAt(0).toUpperCase() + type.slice(1)
-                                  }
-                                >
-                                  {" "}
-                                  {emoji}{" "}
-                                </button>
-                              )
-                            )}{" "}
-                          </div>
-                        )}
-
-                        {!isSender && isLastInBlock && (
-                          <div className="absolute w-8 h-8  bottom-0">
-                            <div className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 flex items-center justify-center text-white font-semibold text-sm">
-                              {receiver.first_name.charAt(0).toUpperCase()}
-                            </div>
-                          </div>
-                        )}
+                        <AnimatePresence mode="wait">
+                          {reactionPicker === msg.message_id && (
+                            <motion.div
+                              key={`reaction-${msg.message_id}`}
+                              initial={{ y: 10, opacity: 0 }}
+                              animate={{ y: 0, opacity: 1 }}
+                              exit={{ opacity: 0 }}
+                              transition={{ duration: 0.2, ease: "easeOut" }}
+                              ref={reactionPickerRef}
+                              className={`sticky z-10 bg-gray-800 w-fit rounded-full px-2 shadow-xl border border-gray-700 flex items-center ${
+                                isSender
+                                  ? "-translate-y-20 -bottom-20 right-0 mt-2 md: md:-translate-y-0 md:-top-8"
+                                  : " translate-x-0 -top-10"
+                              }`}
+                            >
+                              {Object.entries(reactionEmojis).map(
+                                ([type, emoji]) => (
+                                  <button
+                                    key={type}
+                                    onClick={() =>
+                                      addReaction(msg.message_id, type)
+                                    }
+                                    className="w-8 h-8 flex items-center justify-center text-lg hover:scale-125 transition-transform duration-150 reaction-emoji-btn"
+                                    title={
+                                      type.charAt(0).toUpperCase() +
+                                      type.slice(1)
+                                    }
+                                  >
+                                    {emoji}
+                                  </button>
+                                )
+                              )}
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
                       </div>
                       <div
+                        onClick={() => handleReactionClick(msg)}
                         className={`flex flex-row-reverse w-full justify-between gap-2 mt-1 ${
                           isSender ? "justify-between" : "justify-start"
                         }`}
                       >
                         {totalReactions > 0 && (
                           <div
-                            className={`-translate-y-2.5 bg-gray-600 items-center py-0 rounded-full border-[var(--black)] border-2 text-[13px] pb-0.5 px-1 z-9 text-md ${
-                              isSender ? "order-2 relative" : "order-1 relative"
+                            onClick={() => handleReactionClick(msg)}
+                            className={`-translate-y-2.5 bg-gray-600 cursor-pointer items-center py-0 rounded-full border-[var(--black)] border-2 text-[13px] pb-0.5 px-1 z-9 ${
+                              isSender ? "order-2" : "order-1"
                             }`}
                           >
                             {messageReactions
@@ -772,26 +818,64 @@ export default function ChatWindow({ sender_id, receiver, setActiveTab }) {
                               .map((reaction, idx) => (
                                 <span key={idx}>{reaction.emoji}</span>
                               ))}
-                            {totalReactions > 3 && (
+                            {totalReactions > 2 && (
                               <span className="text-gray-300 ml-1">
-                                +{totalReactions - 3}
+                                +{totalReactions - 2}
                               </span>
                             )}
                           </div>
                         )}
+                        <AnimatePresence mode="wait">
+                          {reactionDetails && (
+                            <motion.div
+                              initial={{ y: 10, opacity: 0 }}
+                              animate={{ y: 0, opacity: 1 }}
+                              exit={{ opacity: 0, y: 10 }}
+                              transition={{ duration: 0.2, ease: "easeOut" }}
+                              className="fixed inset-0 backdrop-blur-[1px]  transition-all duration-200 z-50 flex items-center justify-center"
+                              onClick={() => setReactionDetails(null)}
+                            >
+                              <div
+                                className="bg-[var(--black)] outline-1 outline-gray-600 rounded-3xl p-4 min-w-[300px] "
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                <button
+                                  onClick={() => setReactionDetails(null)}
+                                  className="absolute translate-x-60 text-xs  bg-gray-600 text-white p-0.5 rounded-full"
+                                >
+                                  <X className="w-5 h-5" />
+                                </button>
+                                <h3 className="text-white text-sm text-center font-medium mb-3">
+                                  Reactions
+                                </h3>
+
+                                {getMessageReactions(
+                                  reactionDetails,
+                                  sender_id
+                                ).map((r) => (
+                                  <div
+                                    key={r.type}
+                                    className="flex justify-between items-center py-1"
+                                  >
+                                    <span className="text-xl">{r.emoji}</span>
+                                    <span className="text-gray-300">
+                                      {r.count}
+                                    </span>
+                                  </div>
+                                ))}
+                              </div>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
                       </div>
                       {isSender && isLastMessage && msg.is_seen && (
                         <div className="flex items-center gap-1">
-                          {" "}
                           <CheckCheck className="w-3 h-3 text-blue-400" />{" "}
                           {isLastSeenMessage && (
-                            <span className="text-xs text-blue-400">
-                              {" "}
-                              Seen{" "}
-                            </span>
-                          )}{" "}
+                            <span className="text-xs text-blue-400">Seen</span>
+                          )}
                         </div>
-                      )}{" "}
+                      )}
                       {/* Single check for last message sent but not seen */}{" "}
                       {isSender && isLastMessage && !msg.is_seen && (
                         <Check className="w-3 h-3 text-gray-400" />

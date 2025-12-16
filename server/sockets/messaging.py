@@ -19,14 +19,14 @@ def handle_send_message(data):
         
         # Get receiver and content from data
         receiver_id = str(data.get("receiver_id", ""))
-        content = data.get("content", "").strip()
+        content = data.get("content", "")
         
         if not all([receiver_id, content]):
             emit("error", {"message": "Missing required fields"}, room=request.sid)
             return
         
-        if content == "":
-            return
+        if len(content) > 200:
+            return jsonify({"error": "Too Many Characters"})
         
         room = private_room(sender_id, receiver_id)
         
