@@ -247,7 +247,7 @@ export default function ChatWindow({ sender_id, receiver, setActiveTab }) {
         }
         typingTimeoutRef.current = setTimeout(() => {
           setIsTyping(false);
-        }, 2000);
+        }, 1000);
       }
     };
 

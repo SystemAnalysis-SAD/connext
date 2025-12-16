@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { FiUser, FiCheck, FiCheckCircle } from "react-icons/fi";
 import { CheckCheck, Check } from "lucide-react";
 import { socket } from "../socket";
@@ -11,12 +11,48 @@ export default function UserList({
   currentUserId,
   setActiveTab,
   selectedUserId,
+  receiver_id,
 }) {
   const [users, setUsers] = useState([]);
   const [search, setSearch] = useState("");
   const [onlineUsers, setOnlineUsers] = useState(new Set());
   const [latestMessages, setLatestMessages] = useState({});
   const [unreadCounts, setUnreadCounts] = useState({});
+  const [typingUserId, setTypingUserId] = useState(null);
+
+  const typingTimeoutRef = useRef();
+
+  /* ==================
+     TYPING INDICATOR
+     ==================*/
+  useEffect(() => {
+    const handleTypingStart = (data) => {
+      setTypingUserId(String(data.sender_id));
+
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
+      }
+
+      typingTimeoutRef.current = setTimeout(() => {
+        setTypingUserId(null);
+      }, 1200);
+    };
+
+    const handleTypingStop = (data) => {
+      if (String(data.sender_id) === typingUserId) {
+        setTypingUserId(null);
+      }
+    };
+
+    socket.on("typing_start", handleTypingStart);
+    socket.on("typing_stop", handleTypingStop);
+
+    return () => {
+      socket.off("typing_start", handleTypingStart);
+      socket.off("typing_stop", handleTypingStop);
+      clearTimeout(typingTimeoutRef.current);
+    };
+  }, [typingUserId]);
 
   /* =========================
      FETCH USERS + LATEST MSGS
@@ -155,20 +191,6 @@ export default function UserList({
     });
   };
 
-  /* =========================
-     TIME FORMAT
-     ========================= */
-  const formatTime = (value) => {
-    if (!value) return "";
-    try {
-      const date = new Date(value);
-      if (isNaN(date)) return "";
-      return format(date, "h:mm a");
-    } catch {
-      return "";
-    }
-  };
-
   const filteredUsers = users.filter(
     (u) =>
       u.first_name?.toLowerCase().includes(search.toLowerCase()) ||
@@ -235,7 +257,8 @@ export default function UserList({
                     </h3>
                     {msg?.date_sent && (
                       <span className="text-xs text-gray-400">
-                        {formatTime(msg?.date_sent)}
+                        {msg?.date_sent &&
+                          format(new Date(msg?.date_sent), "hh:mm a")}
                       </span>
                     )}
                   </div>
@@ -255,11 +278,13 @@ export default function UserList({
                           : "font-normal"
                       }`}
                     >
-                      {msg
+                      {typingUserId === String(user.uid)
+                        ? "is typing..."
+                        : msg
                         ? msg?.sender_id === currentUserId
                           ? `You: ${msg?.content}`
                           : msg?.content
-                        : `@${user.username}`}
+                        : ""}
                     </span>
                   </div>
                 </div>

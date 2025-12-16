@@ -52,6 +52,7 @@ export default function Messages({ id }) {
         <UserList
           onSelectUser={handleUserSelect}
           currentUserId={id}
+          receiver_id={activeUser}
           setActiveTab={setView}
         />
       </div>

@@ -32,7 +32,9 @@ def handle_send_message(data):
         
         # Get time in Philippine timezone
         date_time = datetime.now()
-        get_seconds = date_time.astimezone(pytz.timezone('Asia/Manila')).strftime("%I:%M %p %S")
+        get_seconds = tz = pytz.timezone("Asia/Manila")
+
+        date_sent = datetime.now(tz).isoformat()
         
         # Get fresh database connection
         conn = get_db_connection()
@@ -44,7 +46,7 @@ def handle_send_message(data):
             VALUES (%s, %s, %s, %s, %s)
             RETURNING message_id, sender_id, receiver_id, content, is_seen
             """,
-            (int(sender_id), int(receiver_id), content, False, get_seconds)
+            (int(sender_id), int(receiver_id), content, False, date_sent)
         )
         
         saved_message = temp_cursor.fetchone()
@@ -58,7 +60,7 @@ def handle_send_message(data):
                 "receiver_id": saved_message["receiver_id"],
                 "content": saved_message["content"],
                 "is_seen": saved_message["is_seen"],
-                "date_sent": get_seconds,
+                "date_sent": date_sent,
             }
             
             print(f"✅ Message saved from {sender_id} to {receiver_id}: {content[:50]}...")
