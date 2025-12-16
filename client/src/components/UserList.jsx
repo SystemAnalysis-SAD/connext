@@ -235,14 +235,14 @@ export default function UserList({
                     </h3>
                     {msg?.date_sent && (
                       <span className="text-xs text-gray-400">
-                        {formatTime(msg.date_sent)}
+                        {formatTime(msg?.date_sent)}
                       </span>
                     )}
                   </div>
 
                   <div className="flex items-center gap-1 text-sm text-gray-400">
                     {msg &&
-                      String(msg.sender_id) === String(currentUserId) &&
+                      String(msg?.sender_id) === String(currentUserId) &&
                       (msg?.is_seen ? (
                         <CheckCheck size={12} className="text-blue-500" />
                       ) : (
@@ -250,15 +250,15 @@ export default function UserList({
                       ))}
                     <span
                       className={`truncate max-w-30 md:max-w-40 ${
-                        !msg?.is_seen && msg.sender_id !== currentUserId
+                        !msg?.is_seen && msg?.sender_id !== currentUserId
                           ? "font-medium text-white"
                           : "font-normal"
                       }`}
                     >
                       {msg
-                        ? msg.sender_id === currentUserId
-                          ? `You: ${msg.content}`
-                          : msg.content
+                        ? msg?.sender_id === currentUserId
+                          ? `You: ${msg?.content}`
+                          : msg?.content
                         : `@${user.username}`}
                     </span>
                   </div>
