@@ -1,6 +1,6 @@
 from flask import request
 from flask_socketio import disconnect, emit
-from flask_jwt_extended import decode_token, create_access_token
+from flask_jwt_extended import decode_token, create_access_token, verify_jwt_in_request, get_jwt_identity
 from extensions import socketio
 from services.online_users import online_manager
 from datetime import datetime, timedelta
@@ -12,19 +12,16 @@ import time
 # SOCKET CONNECT
 # =========================
 @socketio.on("connect")
-def handle_connect(auth):
+def handle_connect():
     try:
-        token = auth.get("token") if auth else None
-        if not token:
-            raise Exception("Missing token")
-
-        decoded = decode_token(token)
-        user_id = str(decoded["sub"])
+        # Verify JWT from cookie
+        verify_jwt_in_request()  # will raise error if invalid/missing
+        user_id = str(get_jwt_identity())
 
         # Store user_id in this request
         request.environ["user_id"] = user_id
 
-        # Register the user immediately
+        # Handle online users
         existing_sid = online_manager.get_user_sid(user_id)
         if existing_sid and existing_sid != request.sid:
             online_manager.remove_user(user_id)
@@ -60,47 +57,6 @@ def handle_disconnect():
         emit("user_offline", {"user_id": uid}, broadcast=True)
         print(f"🔴 USER DISCONNECTED | user={uid}")
 
-# =========================
-# REGISTER USER (AFTER CONNECT)
-# =========================
-""" @socketio.on("register")
-def handle_register(data=None):
-    try:
-        user_id = request.environ.get("user_id")
-        if not user_id:
-            raise Exception("Unauthenticated socket")
-
-        existing_sid = online_manager.get_user_sid(user_id)
-        if existing_sid and existing_sid != request.sid:
-            online_manager.remove_user(user_id)
-            stop_refresh_timer(user_id)
-
-        online_manager.add_user(user_id, request.sid)
-        schedule_token_refresh(user_id, request.sid)
-
-        emit(
-            "user_online",
-            {"user_id": user_id, "timestamp": datetime.utcnow().isoformat()},
-            broadcast=True,
-            include_self=False,
-        )
-
-        emit(
-            "online_users_list",
-            {"online_users": online_manager.get_all_users()},
-            room=request.sid,
-        )
-
-        print(f"✅ USER REGISTERED | user={user_id}")
-
-    except Exception as e:
-        print(f"❌ REGISTER ERROR: {e}")
-        disconnect() """
-
-
-# =========================
-# DISCONNECT
-# =========================
 
 
 

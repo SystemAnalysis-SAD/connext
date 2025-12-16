@@ -7,10 +7,12 @@ import datetime
 from database.db import fetch_all
 import json
 import urllib.parse
+from extensions import talisman
 
 auth_bp = Blueprint('auth', __name__)
 
 @auth_bp.route('/api/login', methods=['POST'])
+@talisman(content_security_policy=None)
 def login():
     data = request.get_json()
     username = data.get("username", "").strip()
@@ -71,18 +73,10 @@ def login():
             max_age=60*60*24*7  # 7 days
         )
 
-        response.set_cookie(
-            "token",
-            access_token,
-            httponly=False,
-            samesite="none",
-            secure=True,
-            max_age=60*60*24*7  # 7 days
-        )
-
         # Use flask-jwt-extended's cookie setters for consistency
-        set_access_cookies(response, access_token)
-        set_refresh_cookies(response, refresh_token)
+        set_access_cookies(response, access_token, max_age=1800, httponly=True, secure=True, samesite="Strict")
+        set_refresh_cookies(response, refresh_token, max_age=604800, httponly=True, secure=True, samesite="Strict")
+
 
         return response
 
@@ -93,17 +87,6 @@ def login():
         cursor.close()
         conn.close()
 
-@auth_bp.route('/api/debug-cookies', methods=['GET'])
-def debug_cookies():
-    """Debug endpoint to check what cookies are being sent"""
-    return jsonify({
-        'cookies_received': dict(request.cookies),
-        'has_access_token': 'access_token_cookie' in request.cookies,
-        'has_refresh_token': 'refresh_token_cookie' in request.cookies,
-        'user_agent': request.headers.get('User-Agent'),
-        'origin': request.headers.get('Origin'),
-        'referer': request.headers.get('Referer')
-    })
 
 @auth_bp.route('/api/refresh', methods=['POST'])
 @jwt_required(refresh=True)  # Requires refresh token cookie
@@ -262,3 +245,15 @@ def get_users(id):
     except Exception as e:
         print(f"❌ Error getting users: {e}")
         return jsonify({"error": str(e)}), 500
+    
+
+@auth_bp.route("/api/verify", methods=["POST"])
+@jwt_required()
+def checkAuth():
+    uid = get_jwt_identity()
+
+    if uid == None:
+        return jsonify({ "error": "Unauthorize Access", "success": False})
+    
+    return jsonify({ "success": True, "message": f"user={uid} registered"})
+    

@@ -12,21 +12,23 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   /* =========================
      INITIAL AUTH CHECK
   ========================= */
   useEffect(() => {
-    const storedUser = localStorage.getItem("_u");
-    if (storedUser) {
+    const fetchProfile = async () => {
       try {
-        setUser(JSON.parse(storedUser));
+        const res = await api.get("/api/profile", { withCredentials: true });
+        setUser(res.data);
       } catch {
-        localStorage.removeItem("_u");
-        localStorage.removeItem("token");
+        setUser(null);
+      } finally {
+        setLoading(false);
       }
-    }
-    setLoading(false);
+    };
+    fetchProfile();
   }, []);
 
   /* =========================
@@ -54,21 +56,17 @@ export const AuthProvider = ({ children }) => {
   ========================= */
   const login = async (loginData) => {
     setLoading(true);
-    setMessage("");
-
     try {
-      const res = await api.post(`${API_URL}/api/login`, loginData);
-      const { token, user } = res.data;
-
-      if (!token || !user) throw new Error("Invalid login response");
-
-      localStorage.setItem("token", token);
-      localStorage.setItem("_u", JSON.stringify(user));
-
-      setUser(user); // 🔥 triggers socket connect
-      showMessage("Login successful!");
+      await api.post(`${API_URL}/api/login`, loginData, {
+        withCredentials: true,
+      });
+      // Fetch user profile after login
+      const profileRes = await api.get(`${API_URL}/api/profile`, {
+        withCredentials: true,
+      });
+      setUser(profileRes.data);
     } catch (err) {
-      showMessage(err?.response?.data?.err || "Login failed");
+      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -123,8 +121,7 @@ export const AuthProvider = ({ children }) => {
 
   return (
     <authContext.Provider value={value}>
-      {loading && <LoadingScreen />}
-      {children}
+      {loading ? <LoadingScreen /> : children}
     </authContext.Provider>
   );
 };

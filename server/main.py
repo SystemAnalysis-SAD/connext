@@ -4,6 +4,7 @@ from flask import Flask
 from flask_cors import CORS
 from extensions import socketio, bcrypt, jwt
 from Config.Config import Config
+from extensions import talisman
 
 # ---------------- APP SETUP ----------------
 app = Flask(__name__)
@@ -17,8 +18,8 @@ CORS(
 # ---------------- EXTENSIONS ----------------
 jwt.init_app(app)
 bcrypt.init_app(app)
-socketio.init_app(app
-                )
+socketio.init_app(app)
+talisman.init_app(app)
 
 
 # ---------------- BLUEPRINTS ----------------
