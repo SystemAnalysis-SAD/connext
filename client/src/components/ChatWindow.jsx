@@ -696,7 +696,7 @@ export default function ChatWindow({ sender_id, receiver, setActiveTab }) {
                                       ? "rounded-tr-md  rounded-l-3xl rounded-br-3xl"
                                       : ""
                                   }`
-                                : `bg-gray-600 ml-10 rounded-br-3xl rounded-tr-3xl from-blue-600 to-blue-700 relative text-white ${
+                                : `bg-gray-600 ml-10 rounded-br-3xl rounded-l-md rounded-tr-3xl from-blue-600 to-blue-700 relative text-white ${
                                     isFirstBubble
                                       ? "rounded-bl-md rounded-r-3xl rounded-tl-3xl"
                                       : isLastBubble
