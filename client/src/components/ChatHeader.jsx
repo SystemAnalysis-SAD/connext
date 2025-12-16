@@ -1,5 +1,5 @@
 import React from "react";
-import { FiArrowLeft } from "react-icons/fi";
+import { FiChevronLeft } from "react-icons/fi";
 import { MoreVertical } from "lucide-react";
 
 export default function ChatHeader({
@@ -16,9 +16,9 @@ export default function ChatHeader({
           <div className="md:hidden">
             <button
               onClick={() => setActiveTab("user")}
-              className="p-2 hover:bg-gray-800 rounded-full transition-colors mr-2"
+              className="pt-1 hover:bg-gray-800 rounded-full transition-colors mr-2"
             >
-              <FiArrowLeft className="text-xl text-gray-300" />
+              <FiChevronLeft className="text-xl text-gray-300" />
             </button>
           </div>
           <div className="flex items-center gap-3">

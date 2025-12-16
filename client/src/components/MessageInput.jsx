@@ -1,5 +1,5 @@
 import React from "react";
-import { Send, Smile, Edit2, X } from "lucide-react";
+import { ArrowUpRight, Send, Smile, Edit2, X } from "lucide-react";
 import EmojiPicker from "emoji-picker-react";
 
 export default function MessageInput({
@@ -59,7 +59,9 @@ export default function MessageInput({
               }
             >
               {window.innerWidth < 768 && (
-                <div className="w-12 h-1.5 bg-gray-600 rounded-full mt-2 mb-2 "></div>
+                <div className=" flex items-center justify-center">
+                  <span className="w-15 h-1.5 bg-gray-600 rounded-full mt-2 mb-2  "></span>
+                </div>
               )}
               <EmojiPicker
                 className="fixed z-100 w-full md:hidden block  md:w-80"
@@ -77,7 +79,7 @@ export default function MessageInput({
             </div>
           )}
 
-          <div className="flex-1 relative min-w-0">
+          <div className="flex relative min-w-0 w-full">
             <textarea
               ref={textareaRef}
               className="w-full bg-black/50 overflow-hidden border border-gray-700 rounded-full px-4 py-3 pr-12 focus:outline-none focus:ring-1 focus:ring-blue-800/70 focus:border-transparent resize-none text-white placeholder-gray-500"
@@ -104,7 +106,7 @@ export default function MessageInput({
             className={`p-3 rounded-full transition-all duration-200 flex-shrink-0 ${
               text.trim()
                 ? "bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white"
-                : "bg-gray-800 text-gray-500 cursor-not-allowed"
+                : "bg-gray-700 text-gray-500 cursor-not-allowed"
             }`}
             onClick={sendMessage}
             disabled={!text.trim()}
@@ -112,7 +114,7 @@ export default function MessageInput({
             {editingMessage ? (
               <Edit2 className="w-5 h-5" />
             ) : (
-              <Send className="w-5 h-5" />
+              <ArrowUpRight className="w-5 h-5" />
             )}
           </button>
         </div>

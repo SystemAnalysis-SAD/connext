@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { FiUser, FiCheck, FiCheckCircle } from "react-icons/fi";
+import { CheckCheck, Check } from "lucide-react";
 import { socket } from "../socket";
 import api from "../api/api";
 import { format } from "date-fns";
@@ -24,7 +25,7 @@ export default function UserList({
     if (!currentUserId) return;
 
     try {
-      const usersRes = await api.get("/users");
+      const usersRes = await api.get(`/users/${currentUserId}`);
       setUsers(usersRes.data || []);
 
       const messagesRes = await api.get(`${API_URL}/latest-messages`, {
@@ -225,7 +226,11 @@ export default function UserList({
 
                 <div className="flex-1">
                   <div className="flex justify-between">
-                    <h3 className="font-medium">
+                    <h3
+                      className={`${
+                        msg.is_seen ? "font-medium" : "font-normal"
+                      }`}
+                    >
                       {user.first_name} {user.last_name}
                     </h3>
                     {msg?.date_sent && (
@@ -239,11 +244,15 @@ export default function UserList({
                     {msg &&
                       String(msg.sender_id) === String(currentUserId) &&
                       (msg.is_seen ? (
-                        <FiCheckCircle size={12} className="text-blue-500" />
+                        <CheckCheck size={12} className="text-blue-500" />
                       ) : (
-                        <FiCheck size={12} />
+                        <Check size={12} />
                       ))}
-                    <span className="truncate">
+                    <span
+                      className={`truncate max-w-30 md:max-w-40 ${
+                        msg.is_seen ? "font-medium text-white" : "font-normal"
+                      }`}
+                    >
                       {msg
                         ? msg.sender_id === currentUserId
                           ? `You: ${msg.content}`

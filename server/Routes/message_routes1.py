@@ -15,6 +15,12 @@ def get_messages(other_user_id):
     conn = get_db_connection()
     cur = conn.cursor()
 
+    if other_user_id == None:
+        return jsonify({ "error": "Receiver ID cannot be empty."})
+
+    if int(uid) == None:
+        return jsonify({ "error": "restricted"})
+
     cur.execute("""
         SELECT * FROM messages
         WHERE (sender_id=%s AND receiver_id=%s)
@@ -34,6 +40,9 @@ def get_latest_messages():
     """Get the latest message from each conversation for current user"""
     try:
         current_user_id = get_jwt_identity()
+
+        if current_user_id == None:
+            return jsonify({ "error": "Unauthorize"})
         
         # Get a fresh database connection
         conn = get_db_connection()
@@ -83,7 +92,6 @@ def get_latest_messages():
         return jsonify(messages)
         
     except Exception as e:
-        print(f"❌ Error in get_latest_messages: {e}")
         import traceback
         traceback.print_exc()
         return jsonify({"error": str(e)}), 500
@@ -126,7 +134,6 @@ def get_user_info(user_id):
         return jsonify(user)
         
     except Exception as e:
-        print(f"❌ Error getting user info: {e}")
         return jsonify({"error": str(e)}), 500
     
 
@@ -136,12 +143,13 @@ def mark_as_seen(sender_id):
     """Mark messages from a specific sender as seen by current user"""
     try:
         current_user_id = get_jwt_identity()
-        
-        # Get a fresh database connection
+
+        if current_user_id == None:
+            return jsonify({ "error": "Unauthorize"})
+
         conn = get_db_connection()
         temp_cursor = conn.cursor()
         
-        # Mark all unread messages from sender to current user as seen
         update_query = """
         UPDATE messages 
         SET is_seen = TRUE 
@@ -158,17 +166,13 @@ def mark_as_seen(sender_id):
         conn.close()
         
         if updated:
-            # Emit socket event that messages were seen
             room_name = private_room(sender_id, current_user_id)
             emit("messages_seen", {
                 "sender_id": sender_id,
                 "receiver_id": current_user_id,
                 "updated_count": len(updated)
             }, room=room_name, namespace='/')
-            print(f"✅ Messages marked as seen: {len(updated)} messages")
-        
         return jsonify({"success": True, "updated": len(updated)})
         
     except Exception as e:
-        print(f"❌ Error marking messages as seen: {e}")
         return jsonify({"error": str(e)}), 500

@@ -3,22 +3,12 @@ import { socket } from "../socket";
 import { reactionEmojis, getLastSeenMessage } from "../utility/chatUtils";
 import {
   Send,
-  Paperclip,
-  Smile,
-  MoreVertical,
   CheckCheck,
   Check,
   Edit2,
-  X,
   Heart,
-  ThumbsUp,
-  Laugh,
-  Frown,
-  Meh,
   MoreHorizontal,
 } from "lucide-react";
-import { FiArrowLeft } from "react-icons/fi";
-import EmojiPicker from "emoji-picker-react";
 import { API_URL } from "../config/config";
 import api from "../api/api";
 import MessageInput from "./MessageInput";
@@ -67,7 +57,6 @@ export default function ChatWindow({ sender_id, receiver, setActiveTab }) {
   const handleTouchMoveEmojiSheet = (e) => {
     const deltaY = e.touches[0].clientY - startYRef.current;
     if (deltaY > 0) {
-      // only drag down
       setEmojiSheetOffset(deltaY);
     }
   };
@@ -86,7 +75,6 @@ export default function ChatWindow({ sender_id, receiver, setActiveTab }) {
     const handleConnect = () => setSocketStatus("connected");
     const handleDisconnect = () => setSocketStatus("disconnected");
 
-    // 🔥 sync immediately
     if (socket.connected) {
       setSocketStatus("connected");
     }
@@ -735,7 +723,7 @@ export default function ChatWindow({ sender_id, receiver, setActiveTab }) {
                             ref={reactionPickerRef}
                             className={` absolute z-10 bg-gray-800 rounded-full px-2 shadow-xl border border-gray-700 flex items-center ${
                               isSender
-                                ? "translate-y-0 mt-2 md: md:-translate-y-0 md:-top-8"
+                                ? "translate-y-0 right-0 mt-2 md: md:-translate-y-0 md:-top-8"
                                 : " translate-x-0 -top-10"
                             }`}
                           >

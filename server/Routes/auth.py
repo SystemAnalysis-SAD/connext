@@ -236,12 +236,14 @@ def profile():
         print("PROFILE ERROR:", e)
         return jsonify({"err": "Unauthorize Access"}), 500
         
-@auth_bp.route("/users", methods=["GET"])
-@jwt_required()
-def get_users():
+@auth_bp.route("/users/<int:id>", methods=["GET"])
+@jwt_required(optional=True)
+def get_users(id):
     """Get all users except current user"""
     try:
         current_user_id = get_jwt_identity()
+        if int(current_user_id) != id:
+            return 
         
         conn = get_db_connection()
         cursor = conn.cursor()

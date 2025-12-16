@@ -25,9 +25,9 @@ export default function Messages({ id }) {
         md:block w-full md:w-90 md:border-r border-gray-700 bg-gray-900 overflow-hidden 
       `}
       >
-        <div className="p-4 ">
+        <div className="px-4 pt-4 pb-1 ">
           <div className="flex items-center justify-between ">
-            <section className="text-xl font-bold flex items-center justify-between gap-2 w-full">
+            <section className="text-3xl font-bold flex items-center justify-between gap-2 w-full">
               <p className="sifonn">
                 con<span className="text-[var(--primary)]">next</span>
               </p>
@@ -35,7 +35,7 @@ export default function Messages({ id }) {
               <img
                 src="/connext(1).png"
                 alt="logo"
-                width={30}
+                width={33}
                 className="relative translate-y-1"
               />
             </section>
