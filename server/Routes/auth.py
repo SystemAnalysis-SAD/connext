@@ -66,7 +66,7 @@ def login():
             "_u",
             encode,
             httponly=False,
-            samesite="none",
+            samesite="None",
             secure=True,
             max_age=60*60*24*7  # 7 days
         )

@@ -101,9 +101,6 @@ export const AuthProvider = ({ children }) => {
     try {
       await api.post(`${API_URL}/api/logout`);
     } catch (_) {}
-
-    localStorage.removeItem("token");
-    localStorage.removeItem("_u");
     setUser(null); // 🔥 triggers socket disconnect
     showMessage("Logged out successfully");
     setLoading(false);

@@ -13,6 +13,7 @@ app.config.from_object(Config)
 CORS(
     app,
     supports_credentials=True,
+    origins=["https://connext-cn.vercel.app"]
 )
 
 # ---------------- EXTENSIONS ----------------
