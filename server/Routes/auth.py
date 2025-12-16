@@ -7,12 +7,10 @@ import datetime
 from database.db import fetch_all
 import json
 import urllib.parse
-from extensions import talisman
 
 auth_bp = Blueprint('auth', __name__)
 
 @auth_bp.route('/api/login', methods=['POST'])
-@talisman(content_security_policy=None)
 def login():
     data = request.get_json()
     username = data.get("username", "").strip()
@@ -74,8 +72,8 @@ def login():
         )
 
         # Use flask-jwt-extended's cookie setters for consistency
-        set_access_cookies(response, access_token, max_age=1800, httponly=True, secure=True, samesite="Strict")
-        set_refresh_cookies(response, refresh_token, max_age=604800, httponly=True, secure=True, samesite="Strict")
+        set_access_cookies(response, access_token)
+        set_refresh_cookies(response, refresh_token)
 
 
         return response

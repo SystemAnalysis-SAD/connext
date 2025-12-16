@@ -35,13 +35,12 @@ export const AuthProvider = ({ children }) => {
      SOCKET LIFECYCLE
   ========================= */
   useEffect(() => {
-    if (user) {
-      const token = localStorage.getItem("token");
-      if (token) connectSocket(token);
+    if (user && !loading) {
+      connectSocket();
     } else {
       disconnectSocket();
     }
-  }, [user]);
+  }, [user, loading]);
 
   /* =========================
      HELPERS

@@ -16,7 +16,7 @@ def handle_connect():
     try:
         # Verify JWT from cookie
         verify_jwt_in_request()  # will raise error if invalid/missing
-        user_id = str(get_jwt_identity())
+        user_id = get_jwt_identity()
 
         # Store user_id in this request
         request.environ["user_id"] = user_id

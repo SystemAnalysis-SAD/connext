@@ -16,11 +16,8 @@ export const socket = io(API_URL, {
 /**
  * CONNECT SOCKET WITH JWT
  */
-export const connectSocket = (token) => {
-  if (socket.connected) return;
-
-  socket.auth = { token };
-  socket.connect();
+export const connectSocket = () => {
+  if (!socket.connected) socket.connect();
 };
 
 /**
@@ -44,11 +41,10 @@ socket.on("connect", () => {
 socket.on("disconnect", (reason) => {
   console.log("❌ Socket disconnected:", reason);
 
-  if (reason === "io server disconnect") {
-    // server forcibly disconnected, reconnect manually
-    const token = localStorage.getItem("token");
-    connectSocket(token);
-  }
+  /*   if (reason === "io server disconnect") {
+    // Let the socket reconnect automatically
+    socket.connect();
+  } */
 });
 
 socket.on("connect_error", (err) => {
