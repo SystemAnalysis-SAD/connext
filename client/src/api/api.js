@@ -42,14 +42,15 @@ api.interceptors.response.use(
 
       isRefreshing = true;
       try {
-        const csrfToken = document.cookie
-          .split("; ")
-          .find((row) => row.startsWith("csrf_refresh_token"))
-          ?.split("=")[1];
         await api.post(
           "/api/refresh",
           {},
-          { withCredentials: true, headers: { "X-CSRF-TOKEN": csrfToken } }
+          {
+            withCredentials: true,
+            headers: {
+              "X-CSRF-TOKEN": getCSRFToken("csrf_refresh_token"),
+            },
+          }
         );
 
         // Wait 50ms to let browser update cookies

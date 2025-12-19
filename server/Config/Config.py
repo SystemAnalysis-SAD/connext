@@ -24,6 +24,10 @@ class Config():
     JWT_COOKIE_CSRF_PROTECT = True    # prevents CSRF attacks
     JWT_DECODE_ALGORITHMS = ["HS256"]
 
+
+    JWT_ACCESS_CSRF_HEADER_NAME = "X-CSRF-TOKEN"
+    JWT_REFRESH_CSRF_HEADER_NAME = "X-CSRF-TOKEN"
+
     # JWT Expiration
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(seconds=30)
     JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=7)
