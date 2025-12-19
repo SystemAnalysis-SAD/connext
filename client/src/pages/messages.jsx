@@ -1,11 +1,14 @@
 import { useState } from "react";
 import UserList from "../components/UserList";
 import ChatWindow from "../components/ChatWindow";
-import { FiMessageSquare, FiArrowLeft, FiUsers } from "react-icons/fi";
+import { FiMessageSquare, FiUsers } from "react-icons/fi";
+import { useAuth } from "../context/authContext";
+import { useViewContext } from "../context/viewContext";
 
-export default function Messages({ id }) {
+export default function Messages() {
   const [activeUser, setActiveUser] = useState(null);
-  const [view, setView] = useState("users");
+  const { view, setView } = useViewContext();
+  const { user } = useAuth();
 
   const handleUserSelect = (user) => {
     setActiveUser(user);
@@ -22,7 +25,7 @@ export default function Messages({ id }) {
       <div
         className={`
         ${view === "users" ? "block" : "hidden"}
-        md:block w-full md:w-90 md:border-r border-gray-700 bg-gray-900 overflow-hidden 
+        md:block w-full md:w-90 md:border-r border-gray-700 bg-[var(--black)] overflow-hidden 
       `}
       >
         <div className="px-4 pt-4 pb-1 ">
@@ -51,7 +54,7 @@ export default function Messages({ id }) {
         </div>
         <UserList
           onSelectUser={handleUserSelect}
-          currentUserId={id}
+          currentUserId={user?.uid}
           receiver_id={activeUser}
           setActiveTab={setView}
         />
@@ -68,7 +71,7 @@ export default function Messages({ id }) {
         {activeUser ? (
           <>
             <ChatWindow
-              sender_id={id}
+              sender_id={user?.uid}
               receiver={activeUser}
               onBack={handleBackToUsers}
               setActiveTab={handleBackToUsers}

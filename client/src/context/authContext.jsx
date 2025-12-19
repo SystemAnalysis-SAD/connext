@@ -42,7 +42,7 @@ export const AuthProvider = ({ children }) => {
       const profile = await api.get("/api/profile");
       setUser(profile.data);
     } catch (err) {
-      showMessage(err?.response?.data?.err || "Login failed");
+      showMessage(err?.response?.data?.err);
     } finally {
       setLoading(false);
     }

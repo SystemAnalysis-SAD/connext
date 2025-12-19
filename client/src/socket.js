@@ -1,4 +1,3 @@
-// socket.js
 import { io } from "socket.io-client";
 import { API_URL } from "./config/config";
 
@@ -34,12 +33,11 @@ export const disconnectSocket = () => {
 =========================== */
 
 socket.on("connect", () => {
-  console.log("✅ Socket connected:", socket.id);
   socket.emit("register"); // register after connect
 });
 
 socket.on("disconnect", (reason) => {
-  console.log("❌ Socket disconnected:", reason);
+  console.log(reason);
 
   /*   if (reason === "io server disconnect") {
     // Let the socket reconnect automatically
@@ -48,13 +46,13 @@ socket.on("disconnect", (reason) => {
 });
 
 socket.on("connect_error", (err) => {
-  console.error("❌ Socket connection error:", err.message);
+  console.error("Socket connection error:", err.message);
 });
 
 socket.on("reconnect_attempt", (attempt) => {
-  console.log(`🔄 Reconnect attempt #${attempt}`);
+  console.log(`Reconnect attempt #${attempt}`);
 });
 
 socket.on("reconnect", () => {
-  console.log("✅ Socket reconnected");
+  console.log("Socket reconnected");
 });

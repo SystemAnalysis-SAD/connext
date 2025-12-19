@@ -102,8 +102,7 @@ export default function UserList({
     if (!currentUserId) return;
 
     const onConnect = () => {
-      console.log("✅ Socket connected (UserList)");
-      socket.emit("register"); // JWT already verified on connect
+      socket.emit("register");
     };
 
     socket.on("connect", onConnect);
@@ -202,7 +201,7 @@ export default function UserList({
      RENDER
      ========================= */
   return (
-    <div className="h-screen w-full flex flex-col bg-gray-900 text-white">
+    <div className="h-screen w-full flex flex-col bg-[var(--black)] text-white">
       <div className="p-4 border-b border-gray-800">
         <div className="relative">
           <FiUser className="absolute left-3 top-3 text-gray-500" />
@@ -210,7 +209,7 @@ export default function UserList({
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search user..."
-            className="w-full bg-gray-800 rounded-full px-10 py-2"
+            className="w-full bg-black/30 rounded-full px-10 py-2"
           />
         </div>
       </div>
@@ -231,7 +230,7 @@ export default function UserList({
             >
               <div className="flex gap-3">
                 <div className="relative">
-                  <div className="w-12 h-12 rounded-full bg-gray-700 flex items-center justify-center">
+                  <div className="w-12 h-12 rounded-full bg-[var(--primary)] flex items-center justify-center">
                     {user.first_name?.[0]}
                   </div>
                   <span
