@@ -8,14 +8,6 @@ import { useEffect } from "react";
 import { socket } from "./socket";
 
 function App() {
-  useEffect(() => {
-    console.log("🚀 Connecting Socket.IO...");
-    socket.connect();
-
-    return () => {
-      socket.disconnect();
-    };
-  }, []);
   const { user } = useAuth();
   return (
     <Router>

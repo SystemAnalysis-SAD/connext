@@ -27,12 +27,10 @@ def login():
             (username,)
         )
         user = cursor.fetchone()
-        print(user)
         
         if not user or not check_hash_password(user["password"], password):
             return jsonify({"err": "Invalid credentials"}), 401
 
-        # Create token with ALL user data in claims
         additional_claims = {
             "uid": user["uid"],
             "username": user["username"],
@@ -41,40 +39,17 @@ def login():
         access_token = create_access_token(
             identity=str(user["uid"]),
             additional_claims=additional_claims,
-            expires_delta=timedelta(minutes=30)
+            expires_delta=timedelta(seconds=30)
         )
         refresh_token = create_refresh_token(
             identity=str(user["uid"]),
             expires_delta=timedelta(days=7)
         )
 
-        userData = {
-            "uid": user["uid"],
-            "username": user["username"]
-        }
-
-        encode = urllib.parse.quote(json.dumps(userData))
-        
-        response = make_response(jsonify({
-            "token": access_token,
-            "message": "success",
-            "user": userData  # Also return user data in response
-        }), 200)
-
-        # Set custom cookie for user data
-        response.set_cookie(
-            "_u",
-            encode,
-            httponly=False,
-            samesite="None",
-            secure=True,
-            max_age=60*60*24*7  # 7 days
-        )
-
-        # Use flask-jwt-extended's cookie setters for consistency
+        response = make_response("", 204)  # NO CONTENT
         set_access_cookies(response, access_token)
         set_refresh_cookies(response, refresh_token)
-
+        
 
         return response
 
@@ -87,7 +62,7 @@ def login():
 
 
 @auth_bp.route('/api/refresh', methods=['POST'])
-@jwt_required(refresh=True)  # Requires refresh token cookie
+@jwt_required(refresh=True) 
 def refresh():
     try:
         current_user_id = get_jwt_identity()
@@ -182,36 +157,22 @@ def register():
 def profile():
     try:
         current_user_id = get_jwt_identity()
-        claims = get_jwt()
-        
-        print(f"\n=== PROFILE ENDPOINT ===")
-        print(f"Current user ID from JWT: {current_user_id}")
-        print(f"JWT claims: {claims}")
-        
-        # Use current_user_id directly (it's the uid from the token)
+
         conn = get_db_connection()
         cursor = conn.cursor()
         cursor.execute(
             "SELECT uid, username, first_name, last_name FROM user_table WHERE uid = %s", 
-            (int(current_user_id),)  # Convert to int since database uid is int
+            (int(current_user_id),)
         )
         user_data = cursor.fetchone()
         cursor.close()
         conn.close()
-        
-        print(f"Database query result: {user_data}")
+
         
         if user_data:
             return jsonify(user_data), 200
         else:
-            print(f"❌ User with ID {current_user_id} not found in database")
-            return jsonify({"err": "User not found"}), 404
-            
-    except Exception as e:
-        print(f"❌ PROFILE ERROR: {e}")
-        import traceback
-        traceback.print_exc()
-        return jsonify({"err": "Server error"}), 500
+            return jsonify({"err": "User not found"}), 404  
             
     except Exception as e:
         print("PROFILE ERROR:", e)

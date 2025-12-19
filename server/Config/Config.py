@@ -19,11 +19,11 @@ class Config():
     JWT_ACCESS_COOKIE_NAME = 'access_token_cookie'
 
     JWT_COOKIE_SECURE = True        # HTTPS only
-    JWT_COOKIE_HTTPONLY = False      # JS cannot access (prevents XSS)
-    JWT_COOKIE_SAMESITE = "None"    # allow cross-site (React frontend)
-    JWT_COOKIE_CSRF_PROTECT = False    # prevents CSRF attacks
+    JWT_COOKIE_HTTPONLY = True      # JS cannot access (prevents XSS)
+    JWT_COOKIE_SAMESITE = "Lax"    # allow cross-site (React frontend)
+    JWT_COOKIE_CSRF_PROTECT = True    # prevents CSRF attacks
     JWT_DECODE_ALGORITHMS = ["HS256"]
 
     # JWT Expiration
-    JWT_ACCESS_TOKEN_EXPIRES = timedelta(minutes=30)
+    JWT_ACCESS_TOKEN_EXPIRES = timedelta(seconds=30)
     JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=7)

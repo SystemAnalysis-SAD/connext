@@ -1,123 +1,79 @@
-import axios from "axios";
-import { API_URL } from "../config/config";
-import { useState, useEffect, createContext, useContext } from "react";
-import api from "../api/api";
+import { createContext, useContext, useState, useEffect } from "react";
+import api, { checkAuthStatus } from "../api/api";
 import { connectSocket, disconnectSocket } from "../socket";
 import LoadingScreen from "../components/loadingScreen";
 
-const authContext = createContext();
-export const useAuth = () => useContext(authContext);
+const AuthContext = createContext();
+export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [booting, setBooting] = useState(true); // initial loading
+  const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  /* =========================
-     INITIAL AUTH CHECK
-  ========================= */
+  // Restore session on mount
   useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        const res = await api.get("/api/profile", { withCredentials: true });
-        setUser(res.data);
-      } catch {
-        setUser(null);
-      } finally {
-        setLoading(false);
-      }
+    const restoreSession = async () => {
+      const status = await checkAuthStatus();
+      if (status.authenticated) setUser(status.user);
+      setBooting(false);
     };
-    fetchProfile();
+    restoreSession();
   }, []);
 
-  /* =========================
-     SOCKET LIFECYCLE
-  ========================= */
+  // Socket lifecycle
   useEffect(() => {
-    if (user && !loading) {
-      connectSocket();
-    } else {
-      disconnectSocket();
-    }
-  }, [user, loading]);
+    if (user) connectSocket();
+    else disconnectSocket();
+  }, [user]);
 
-  /* =========================
-     HELPERS
-  ========================= */
+  // Helpers
   const showMessage = (msg, duration = 3000) => {
     setMessage(msg);
     setTimeout(() => setMessage(""), duration);
   };
 
-  /* =========================
-     LOGIN
-  ========================= */
-  const login = async (loginData) => {
+  // Login
+  const login = async (credentials) => {
     setLoading(true);
     try {
-      await api.post(`${API_URL}/api/login`, loginData, {
-        withCredentials: true,
-      });
-      // Fetch user profile after login
-      const profileRes = await api.get(`${API_URL}/api/profile`, {
-        withCredentials: true,
-      });
-      setUser(profileRes.data);
+      await api.post("/api/login", credentials);
+      const profile = await api.get("/api/profile");
+      setUser(profile.data);
     } catch (err) {
-      console.error(err);
+      showMessage(err?.response?.data?.err || "Login failed");
     } finally {
       setLoading(false);
     }
   };
 
-  /* =========================
-     REGISTER
-  ========================= */
-  const register = async (registerData) => {
+  // Register
+  const register = async (data) => {
     setLoading(true);
     try {
-      const res = await axios.post(`${API_URL}/api/register`, registerData, {
-        headers: { "Content-Type": "application/json" },
-      });
-
-      if (res.data?.message?.includes("success")) {
-        showMessage("Registered successfully. Please login.");
-      } else {
-        showMessage(res.data?.err || "Registration failed");
-      }
+      const res = await api.post("/api/register", data);
+      showMessage(res.data?.message || "Registration successful");
     } catch (err) {
-      showMessage(err?.response?.data?.err || "Registration error");
+      showMessage(err?.response?.data?.err || "Registration failed");
     } finally {
       setLoading(false);
     }
   };
 
-  /* =========================
-     LOGOUT
-  ========================= */
+  // Logout
   const logout = async () => {
     setLoading(true);
     try {
-      await api.post(`${API_URL}/api/logout`);
+      await api.post("/api/logout");
     } catch (_) {}
-    setUser(null); // 🔥 triggers socket disconnect
-    showMessage("Logged out successfully");
+    setUser(null);
     setLoading(false);
   };
 
-  const value = {
-    user,
-    loading,
-    login,
-    register,
-    logout,
-    message,
-  };
+  const value = { user, login, register, logout, loading, message };
 
-  return (
-    <authContext.Provider value={value}>
-      {loading ? <LoadingScreen /> : children}
-    </authContext.Provider>
-  );
+  if (booting) return <LoadingScreen />;
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
