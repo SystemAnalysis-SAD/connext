@@ -43,10 +43,10 @@ api.interceptors.response.use(
       isRefreshing = true;
       try {
         function getCSRFToken(name) {
-          const value = `; ${document.cookie}`;
-          const parts = value.split(`; ${name}=`);
-          if (parts.length === 2) return parts.pop().split(";").shift();
-          return null;
+          return document.cookie
+            .split("; ")
+            .find((c) => c.startsWith(name + "="))
+            ?.split("=")[1];
         }
         await api.post(
           "/api/refresh",

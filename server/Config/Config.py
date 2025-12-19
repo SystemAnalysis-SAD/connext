@@ -14,7 +14,7 @@ class Config():
     # JWT Cookie Settings (very important for security)
     JWT_TOKEN_LOCATION = ["cookies"]
     JWT_ACCESS_COOKIE_PATH = "/"
-    JWT_REFRESH_COOKIE_PATH = "/"
+    JWT_REFRESH_COOKIE_PATH = "/api/refresh"
     JWT_REFRESH_COOKIE_NAME = 'refresh_token_cookie'
     JWT_ACCESS_COOKIE_NAME = 'access_token_cookie'
 
