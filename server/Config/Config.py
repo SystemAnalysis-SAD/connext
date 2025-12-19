@@ -25,6 +25,9 @@ class Config():
     JWT_DECODE_ALGORITHMS = ["HS256"]
 
 
+    JWT_ACCESS_CSRF_COOKIE_NAME = "csrf_access_token"
+    JWT_REFRESH_CSRF_COOKIE_NAME = "csrf_refresh_token"
+
     JWT_ACCESS_CSRF_HEADER_NAME = "X-CSRF-TOKEN"
     JWT_REFRESH_CSRF_HEADER_NAME = "X-CSRF-TOKEN"
 
