@@ -263,13 +263,6 @@ export default function UserList({
                   </div>
 
                   <div className="flex items-center gap-1 text-sm text-gray-400">
-                    {msg &&
-                      String(msg?.sender_id) === String(currentUserId) &&
-                      (msg?.is_seen ? (
-                        <CheckCheck size={12} className="text-blue-500" />
-                      ) : (
-                        <Check size={12} />
-                      ))}
                     <span
                       className={`truncate max-w-30 md:max-w-40 ${
                         !msg?.is_seen && msg?.sender_id !== currentUserId
