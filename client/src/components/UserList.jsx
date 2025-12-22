@@ -234,7 +234,7 @@ export default function UserList({
                     {user.first_name?.[0]}
                   </div>
                   <span
-                    className={`absolute bottom-0 right-0 w-3 h-3 rounded-full ${
+                    className={`absolute border-1 border-[var(--black)] bottom-0 right-0 w-3 h-3 rounded-full ${
                       online ? "bg-green-500" : "bg-gray-500"
                     }`}
                   />
