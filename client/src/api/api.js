@@ -17,12 +17,6 @@ const resolveQueue = (error = null) => {
   queue = [];
 };
 
-// Request logging (optional)
-api.interceptors.request.use(
-  (config) => config,
-  (error) => Promise.reject(error)
-);
-
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
@@ -76,7 +70,6 @@ api.interceptors.response.use(
   }
 );
 
-// Check authentication status
 export const checkAuthStatus = async () => {
   try {
     const res = await api.get("/api/profile");
