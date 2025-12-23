@@ -3,11 +3,12 @@
 from flask import Flask
 from flask_cors import CORS
 from extensions import socketio, bcrypt, jwt
-from extensions import fernet
+from Config.Config import Config
 #from extensions import talisman
 
 # ---------------- APP SETUP ----------------
 app = Flask(__name__)
+app.config.from_object(Config)
 
 CORS(
     app,

@@ -39,7 +39,7 @@ def login():
         access_token = create_access_token(
             identity=str(user["uid"]),
             additional_claims=additional_claims,
-            expires_delta=timedelta(seconds=15)
+            expires_delta=timedelta(minutes=30)
         )
         refresh_token = create_refresh_token(
             identity=str(user["uid"]),
@@ -79,7 +79,7 @@ def refresh():
         new_access_token = create_access_token(
             identity=current_user_id,
             additional_claims=additional_claims,
-            expires_delta=timedelta(seconds=30)
+            expires_delta=timedelta(minutes=30)
         )
         
         response = make_response(jsonify({
@@ -207,13 +207,13 @@ def get_users(id):
         return jsonify({"error": str(e)}), 500
     
 
-@auth_bp.route("/api/verify", methods=["POST"])
+@auth_bp.route("/auth/verify", methods=["GET"])
 @jwt_required()
 def checkAuth():
-    uid = get_jwt_identity()
+    user = get_jwt()
 
-    if uid == None:
+    if user == None:
         return jsonify({ "error": "Unauthorize Access", "success": False})
     
-    return jsonify({ "success": True, "message": f"user={uid} registered"})
+    return jsonify({ "success": True, "message": f"user{user.get("uid")} verified"})
     

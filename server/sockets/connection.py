@@ -14,8 +14,7 @@ import time
 @socketio.on("connect")
 def handle_connect():
     try:
-        # Verify JWT from cookie
-        verify_jwt_in_request()  # will raise error if invalid/missing
+        verify_jwt_in_request()  
         user_id = get_jwt_identity()
 
         # Store user_id in this request
@@ -42,11 +41,8 @@ def handle_connect():
             {"online_users": online_manager.get_all_users()},
             room=request.sid,
         )
-
-        print(f"✅ SOCKET CONNECTED & USER REGISTERED | user={user_id} | sid={request.sid}")
-
     except Exception as e:
-        print(f"❌ SOCKET AUTH FAILED: {e}")
+        print(f"SOCKET AUTH FAILED: {e}")
         disconnect()
 
 @socketio.on("disconnect")
@@ -55,7 +51,7 @@ def handle_disconnect():
     if uid:
         stop_refresh_timer(uid)
         emit("user_offline", {"user_id": uid}, broadcast=True)
-        print(f"🔴 USER DISCONNECTED | user={uid}")
+        print(f"USER DISCONNECTED | user={uid}")
 
 
 
@@ -64,7 +60,7 @@ def handle_disconnect():
 # TOKEN REFRESH SYSTEM
 # =========================
 def refresh_worker(user_id, sid, stop_event):
-    print(f"🔄 TOKEN REFRESH STARTED | user={user_id}")
+    print(f"TOKEN REFRESH STARTED | user={user_id}")
 
     while not stop_event.is_set():
         time.sleep(900)
@@ -108,13 +104,13 @@ def refresh_worker(user_id, sid, stop_event):
                 room=sid,
             )
 
-            print(f"✅ TOKEN REFRESHED | user={user_id}")
+            print(f"TOKEN REFRESHED | user={user_id}")
 
         except Exception as e:
             print(f"❌ REFRESH ERROR | user={user_id}: {e}")
             time.sleep(5)
 
-    print(f"🛑 REFRESH STOPPED | user={user_id}")
+    print(f"REFRESH STOPPED | user={user_id}")
 
 
 def schedule_token_refresh(user_id, sid):

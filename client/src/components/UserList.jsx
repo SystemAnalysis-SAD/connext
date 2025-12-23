@@ -209,7 +209,7 @@ export default function UserList({
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search user..."
-            className="w-full bg-black/30 rounded-full px-10 py-2"
+            className="w-full bg-black/50 rounded-full px-10 py-2"
           />
         </div>
       </div>
@@ -224,7 +224,7 @@ export default function UserList({
             <div
               key={user.uid}
               onClick={() => handleSelectUser(user)}
-              className={`p-4 border-b border-gray-800 cursor-pointer ${
+              className={`mb-2 mx-4 p-2 border-2 border-black/20 shadow-md bg-black/50 cursor-pointer rounded-xl ${
                 selectedUserId === user.uid ? "bg-gray-800" : ""
               }`}
             >

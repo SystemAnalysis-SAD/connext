@@ -3,7 +3,7 @@ import { Navigate } from "react-router-dom";
 import api from "../../api/api";
 import LoadingScreen from "../../components/loadingScreen";
 
-const Protected = ({ children }) => {
+const Public = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [authorized, setAuthorized] = useState(false);
 
@@ -17,11 +17,11 @@ const Protected = ({ children }) => {
 
   if (loading) return <LoadingScreen />;
 
-  if (!authorized) {
-    return <Navigate to="/login" replace />;
+  if (authorized) {
+    return <Navigate to="/me" replace />;
   }
 
   return children;
 };
 
-export default Protected;
+export default Public;
