@@ -9,6 +9,8 @@ from Utils.message_encrypt import decrypt_message
 
 message_bp = Blueprint("message_bp", __name__)
 
+
+"""get all messages"""
 @message_bp.route("/messages/<int:other_user_id>", methods=["GET"])
 @jwt_required()
 def get_messages(other_user_id):
