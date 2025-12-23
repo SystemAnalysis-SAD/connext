@@ -39,10 +39,11 @@ def login():
         access_token = create_access_token(
             identity=str(user["uid"]),
             additional_claims=additional_claims,
-            expires_delta=timedelta(seconds=30)
+            expires_delta=timedelta(seconds=15)
         )
         refresh_token = create_refresh_token(
             identity=str(user["uid"]),
+            additional_claims=additional_claims,
             expires_delta=timedelta(days=7)
         )
 
@@ -72,20 +73,20 @@ def refresh():
         additional_claims = {
             "uid": current_jwt.get("uid"),
             "username": current_jwt.get("username")
-        } if current_jwt else {}
+        }
         
         # Create new access token
         new_access_token = create_access_token(
             identity=current_user_id,
             additional_claims=additional_claims,
-            expires_delta=timedelta(minutes=15)
+            expires_delta=timedelta(seconds=30)
         )
         
         response = make_response(jsonify({
             "message": "refreshed",
             "user": {
-                "uid": current_jwt.get("uid") if current_jwt else current_user_id,
-                "username": current_jwt.get("username") if current_jwt else ""
+                "uid": current_jwt.get("uid"),
+                "username": current_jwt.get("username")
             }
         }), 200)
         

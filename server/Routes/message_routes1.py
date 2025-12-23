@@ -5,6 +5,7 @@ from Utils.rooms import private_room
 from extensions import socketio
 from services.online_users import online_manager
 from flask_socketio import emit
+from Utils.message_encrypt import decrypt_message
 
 message_bp = Blueprint("message_bp", __name__)
 
@@ -31,7 +32,13 @@ def get_messages(other_user_id):
     data = cur.fetchall()
     cur.close()
     conn.close()
-    return jsonify(data)
+
+    messages = []
+    for msg in data:
+        msg["content"] = decrypt_message(msg["content"])
+        messages.append(msg)
+
+    return jsonify(messages), 200
 
 
 @message_bp.route("/latest-messages", methods=["GET"])
@@ -86,8 +93,14 @@ def get_latest_messages():
         
         temp_cursor.execute(query, (current_user_id, current_user_id, current_user_id, current_user_id))
         messages = temp_cursor.fetchall()
+        msg = []
+        for message in messages:
+            message["content"] = decrypt_message(message["content"])
+            msg.append(message)
         temp_cursor.close()
         conn.close()
+
+        
         
         return jsonify(messages)
         

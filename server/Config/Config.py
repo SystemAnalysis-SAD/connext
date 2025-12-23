@@ -6,6 +6,7 @@ load_dotenv()
 
 class Config():
     DB_URL = os.getenv("DB_URL")
+    MESSAGE_SECRET_KEY = os.getenv("MESSAGE_SECRET_KEY")
 
     # JWT Secret Key (STRONG, GENERATED)
     JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY")
@@ -32,5 +33,5 @@ class Config():
     JWT_REFRESH_CSRF_HEADER_NAME = "X-CSRF-TOKEN"
 
     # JWT Expiration
-    JWT_ACCESS_TOKEN_EXPIRES = timedelta(seconds=30)
+    JWT_ACCESS_TOKEN_EXPIRES = timedelta(seconds=15)
     JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=7)

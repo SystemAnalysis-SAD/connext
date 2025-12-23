@@ -6,20 +6,19 @@ from Utils.rooms import private_room
 from database.db import get_db_connection
 import pytz
 from datetime import datetime
+from Utils.message_encrypt import encrypt_msg, decrypt_message
 
 messaging_bp = Blueprint("messaging", __name__)
 
 @socketio.on("send_message")
 def handle_send_message(data):
     try:
-        # Get current user from JWT
-        #verify_jwt_in_request(optional=False)
-        #sender_id = str(get_jwt_identity())
         sender_id = request.environ.get("user_id")
         
         # Get receiver and content from data
         receiver_id = str(data.get("receiver_id", ""))
         content = data.get("content", "")
+        encrypted_msg = encrypt_msg(content)
         
         if not all([receiver_id, content]):
             emit("error", {"message": "Missing required fields"}, room=request.sid)
@@ -29,10 +28,7 @@ def handle_send_message(data):
             return jsonify({"error": "Too Many Characters"})
         
         room = private_room(sender_id, receiver_id)
-        
-        # Get time in Philippine timezone
-        date_time = datetime.now()
-        get_seconds = tz = pytz.timezone("Asia/Manila")
+        tz = pytz.timezone("Asia/Manila")
 
         date_sent = datetime.now(tz).isoformat()
         
@@ -46,7 +42,7 @@ def handle_send_message(data):
             VALUES (%s, %s, %s, %s, %s)
             RETURNING message_id, sender_id, receiver_id, content, is_seen
             """,
-            (int(sender_id), int(receiver_id), content, False, date_sent)
+            (int(sender_id), int(receiver_id), encrypted_msg, False, date_sent)
         )
         
         saved_message = temp_cursor.fetchone()
@@ -58,12 +54,12 @@ def handle_send_message(data):
                 "message_id": saved_message["message_id"],
                 "sender_id": saved_message["sender_id"],
                 "receiver_id": saved_message["receiver_id"],
-                "content": saved_message["content"],
+                "content": decrypt_message(saved_message["content"]),
                 "is_seen": saved_message["is_seen"],
                 "date_sent": date_sent,
             }
             
-            print(f"✅ Message saved from {sender_id} to {receiver_id}: {content[:50]}...")
+            print(f"✅ Message saved from {sender_id} to {receiver_id}: {encrypted_msg[:50]}...")
             
             # Emit to the room
             emit("new_message", message_dict, room=room)
