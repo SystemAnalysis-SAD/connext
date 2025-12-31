@@ -15,7 +15,7 @@ export default function ChatHeader({
         <div className="flex items-center justify-between md:justify-start">
           <div className="md:hidden">
             <button
-              onClick={() => setActiveTab("user")}
+              onClick={() => setActiveTab("users")}
               className="pt-1 hover:bg-gray-800 rounded-full transition-colors mr-2"
             >
               <FiChevronLeft className="text-xl text-gray-300" />
@@ -24,13 +24,13 @@ export default function ChatHeader({
           <div className="flex items-center gap-3">
             <div className="relative">
               <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 flex items-center justify-center text-white font-semibold">
-                {receiver.first_name.charAt(0).toUpperCase()}
+                {receiver?.first_name?.charAt(0)?.toUpperCase()}
               </div>
               <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-[var(--black)]"></div>
             </div>
             <div className="text-center md:text-left">
               <h2 className="font-bold text-white">
-                {receiver.first_name}&nbsp;{receiver.last_name}
+                {receiver?.first_name}&nbsp;{receiver.last_name}
               </h2>
               <div className="flex items-center justify-center md:justify-start gap-1">
                 <div

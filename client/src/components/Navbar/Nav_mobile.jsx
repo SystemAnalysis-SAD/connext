@@ -56,7 +56,7 @@ export default function NavMobile() {
   return (
     <motion.nav
       className={`w-fit text-xl z-100 fixed bottom-0 md:hidden m-5 flex bg-black/30 pl-3 pr-4.5 py-2 rounded-full items-center gap-3 shadow-lg backdrop-blur-sm ${
-        !["users", "menu"].includes(view) && "hidden"
+        !["chat"].includes(view) ? "block" : "hidden"
       }`}
       variants={navVariants}
       initial="hidden"
@@ -66,7 +66,7 @@ export default function NavMobile() {
     >
       {/* Messages Button */}
       <motion.section
-        onClick={() => setView("users")}
+        onClick={() => setView("messages")}
         className="relative flex items-center justify-center"
         variants={buttonVariants}
         whileHover="hover"
@@ -77,15 +77,15 @@ export default function NavMobile() {
         <motion.div
           className="absolute inset-0 rounded-full"
           variants={backgroundVariants}
-          animate={view === "users" ? "active" : "inactive"}
+          animate={view === "messages" ? "active" : "inactive"}
         />
 
         <div className="relative z-10 flex gap-2 items-center px-4 py-2">
           <motion.div
             variants={iconVariants}
-            animate={view === "users" ? "active" : "inactive"}
+            animate={view === "messages" ? "active" : "inactive"}
           >
-            {view === "users" ? (
+            {view === "messages" ? (
               <RiMessage3Fill className="text-white" />
             ) : (
               <RiMessage3Line className="text-white" />
@@ -93,7 +93,7 @@ export default function NavMobile() {
           </motion.div>
 
           <AnimatePresence mode="wait">
-            {view === "users" && (
+            {view === "messages" && (
               <motion.span
                 className="text-white text-sm font-medium whitespace-nowrap"
                 initial={{ opacity: 0, width: 0 }}
@@ -110,7 +110,7 @@ export default function NavMobile() {
 
       {/* Menu Button */}
       <motion.section
-        onClick={() => setView("menu")}
+        onClick={() => setView("profile")}
         className="relative flex items-center justify-center"
         variants={buttonVariants}
         whileHover="hover"

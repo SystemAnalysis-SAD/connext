@@ -3,12 +3,12 @@ import UserList from "../components/UserList";
 import ChatWindow from "../components/ChatWindow";
 import { FiMessageSquare, FiUsers } from "react-icons/fi";
 import { useAuth } from "../context/authContext";
-import { useViewContext } from "../context/viewContext";
 
 export default function Messages() {
-  const [activeUser, setActiveUser] = useState(null);
-  const { view, setView } = useViewContext();
   const { user } = useAuth();
+  const [activeUser, setActiveUser] = useState(null);
+  const [view, setView] = useState("users"); // "users" or "chat"
+  const [messageView, setMessageView] = useState("users");
 
   const handleUserSelect = (user) => {
     setActiveUser(user);
@@ -20,38 +20,21 @@ export default function Messages() {
   };
 
   return (
-    <div className="flex h-screen bg-[var(--black)] text-gray-100 ">
-      {/* User List - Always visible on desktop, conditional on mobile */}
+    <div className="flex h-full bg-[var(--black)] text-gray-100">
+      {/* User List */}
       <div
         className={`
-        ${view === "users" ? "block" : "hidden"}
-        md:block w-full md:w-90 md:border-r border-gray-700 bg-[var(--black)] overflow-hidden 
-      `}
+          ${view === "users" ? "block" : "hidden"}
+          md:block w-full md:w-96 md:border-r border-gray-700 bg-[var(--black)] overflow-hidden
+        `}
       >
-        <div className="px-4 pt-4 pb-1 ">
-          <div className="flex items-center justify-between ">
-            <section className="text-3xl font-bold flex items-center justify-between gap-2 w-full">
-              <p className="sifonn">
-                con<span className="text-[var(--primary)]">next</span>
-              </p>
-
-              <img
-                src="/connext(1).png"
-                alt="logo"
-                width={33}
-                className="relative translate-y-1"
-              />
-            </section>
-            {view === "chat" && (
-              <button
-                onClick={handleBackToUsers}
-                className="md:hidden p-2 hover:bg-gray-800 rounded-full"
-              >
-                <FiUsers className="text-gray-400" />
-              </button>
-            )}
-          </div>
+        <div className="px-4 pt-4 pb-1 flex items-center justify-between">
+          <p className="text-3xl font-bold">
+            con<span className="text-[var(--primary)]">next</span>
+          </p>
+          <img src="/connext(1).png" alt="logo" width={33} />
         </div>
+
         <UserList
           onSelectUser={handleUserSelect}
           currentUserId={user?.uid}
@@ -60,23 +43,19 @@ export default function Messages() {
         />
       </div>
 
-      {/* Chat Window - Always visible on desktop, conditional on mobile */}
+      {/* Chat Window */}
       <div
         className={`
-        ${view === "chat" ? "block" : "hidden"}
-        md:block flex-1 flex flex-col 
-        
-      `}
+          ${view === "chat" ? "block" : "hidden"}
+          md:block flex-1 flex flex-col
+        `}
       >
         {activeUser ? (
-          <>
-            <ChatWindow
-              sender_id={user?.uid}
-              receiver={activeUser}
-              onBack={handleBackToUsers}
-              setActiveTab={handleBackToUsers}
-            />
-          </>
+          <ChatWindow
+            sender_id={user?.uid}
+            receiver={activeUser}
+            setActiveTab={handleBackToUsers}
+          />
         ) : (
           <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
             <div className="w-24 h-24 rounded-full bg-gray-800 flex items-center justify-center mb-6">
