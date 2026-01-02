@@ -12,27 +12,28 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function NavSettings() {
-  const { user } = useAuth();
+  const { user, logout, loading } = useAuth();
+  const navigate = useNavigate();
   const [showDropdown, setShowDropdown] = useState(false);
+
+  const handleLogout = async () => {
+    await logout();
+    if (!loading) {
+      navigate("/login");
+    }
+  };
 
   return (
     <nav className="sticky top-0 z-50">
-      <section className="__nav_settings__ w-full bg-gradient-to-b from-[var(--black)] to-black/2 backdrop-blur-xl border-b border-white/5 shadow-2xl">
+      <section className="__nav_settings__ w-full bg-gradient-to-b from-[var(--black)] to-black/2 backdrop-blur-2xl border-b border-white/5 shadow-2xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo Section */}
             <div className="flex items-center gap-3">
-              <img
-                src="/connext(1).png"
-                alt="logo"
-                className="h-8 w-auto brightness-0 invert"
-              />
-              <div className="h-6 w-px bg-white/10 mx-2" />
-              <h1 className="text-xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
-                connext
-              </h1>
+              <img src="/connext(1).png" alt="logo" className="h-6 w-auto" />
             </div>
 
             {/* Icons Menu */}
@@ -56,10 +57,11 @@ export default function NavSettings() {
                 {showDropdown && (
                   <>
                     <div
-                      className="fixed inset-0 z-40"
-                      onClick={() => setShowDropdown(false)}
-                    />
-                    <div className="absolute right-0 mt-2 w-64 bg-gradient-to-b from-black/95 to-black/90 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl overflow-hidden z-50">
+                      className="fixed right-0 mt-2 w-64 
+bg-black/50 backdrop-blur-2l
+border border-white/10 
+rounded-2xl shadow-2xl overflow-hidden z-50"
+                    >
                       <div className="p-4 border-b border-white/5">
                         <div className="flex items-center gap-3">
                           <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[var(--primary)] to-purple-600 flex items-center justify-center text-white font-semibold text-lg">
@@ -72,7 +74,7 @@ export default function NavSettings() {
                               {user?.first_name || user?.username || "User"}
                             </div>
                             <div className="text-sm text-gray-400">
-                              {user?.email || "user@example.com"}
+                              {user?.email}
                             </div>
                           </div>
                         </div>
@@ -87,7 +89,10 @@ export default function NavSettings() {
                           <Settings className="w-4 h-4" />
                           <span>Settings</span>
                         </button>
-                        <button className="w-full flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition-colors text-left">
+                        <button
+                          onClick={handleLogout}
+                          className="w-full flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition-colors text-left"
+                        >
                           <LogOut className="w-4 h-4" />
                           <span className="text-red-400">Log Out</span>
                         </button>

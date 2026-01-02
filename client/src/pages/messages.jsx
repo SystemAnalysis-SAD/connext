@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import UserList from "../components/UserList";
 import ChatWindow from "../components/ChatWindow";
 import { FiMessageSquare, FiUsers } from "react-icons/fi";
@@ -9,7 +9,13 @@ export default function Messages() {
   const { user } = useAuth();
   const [activeUser, setActiveUser] = useState(null);
   const { view, setView } = useViewContext(); // "users" or "chat"
-  console.log(view);
+  const [width, setWidth] = useState();
+
+  useEffect(() => {
+    const handleResize = () => setWidth(window.innerWidth);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const handleUserSelect = (user) => {
     setActiveUser(user);
@@ -26,13 +32,17 @@ export default function Messages() {
       <div
         className={`
           ${view === "messages" ? "block" : "hidden"}
-          md:block w-full md:w-96 md:border-r border-gray-700 bg-[var(--black)] overflow-hidden
+          md:block w-full md:w-96 md:border-r border-white/10 bg-[var(--black)] overflow-hidden
         `}
       >
         <div className="px-4 pt-4 pb-1 flex items-center justify-between ">
-          <p className="text-3xl font-bold">
-            con<span className="text-[var(--primary)]">next</span>
-          </p>
+          {width < 768 ? (
+            <p className="text-3xl font-bold">
+              con<span className="text-[var(--primary)]">next</span>
+            </p>
+          ) : (
+            <p className="text-2xl font-bold">{user.username}</p>
+          )}
           <img src="/connext(1).png" alt="logo" width={33} />
         </div>
 

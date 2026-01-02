@@ -9,7 +9,7 @@ export default function ChatHeader({
   getStatusText,
 }) {
   return (
-    <div className="fixed z-10 w-full top-0 backdrop-blur-lg  border-b border-white/10">
+    <div className="fixed z-10 w-full top-0 backdrop-blur-lg  border-b border-white/10 saturate-150">
       <div className="flex items-center justify-between px-4 py-4 md:pr-100">
         {/* Left: Back button (mobile only) */}
         <div className="flex items-center justify-between md:justify-start">

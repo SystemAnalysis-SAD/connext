@@ -77,7 +77,7 @@ export default function Login() {
                   onChange={handleChange}
                   required
                   className="w-full pl-10 pr-3 py-3 text-white text-sm md:text-base bg-black/10 shadow-[inset_0_4px_6px_rgba(0,0,0,0.1)]  border-b-2 border-[var(--secondary)]/40 rounded-xl focus:outline-none  transition placeholder:text-slate-600 "
-                  placeholder="Username"
+                  placeholder="john.doe"
                 />
               </div>
             </div>
@@ -102,6 +102,7 @@ export default function Login() {
                     onChange={handleChange}
                     required
                     className="w-full pl-10 pr-8 py-3 text-white text-sm md:text-base bg-black/10 shadow-[inset_0_4px_6px_rgba(0,0,0,0.1)] border-b-2 border-[var(--secondary)]/40 rounded-xl  focus:outline-none  transition placeholder:text-slate-600"
+                    placeholder="********"
                   />
                   <div
                     onClick={() => setShowPassword(!showPassword)}

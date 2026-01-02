@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import api from "../api/api";
-import { useViewContext } from "../context/viewContext";
 
 export default function UserListVertical({ onSelectUser }) {
   const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchAllUsers = async () => {
@@ -12,6 +12,8 @@ export default function UserListVertical({ onSelectUser }) {
         setUsers(all_users.data);
       } catch (err) {
         console.error("Cannot fetch: ", err);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -19,21 +21,31 @@ export default function UserListVertical({ onSelectUser }) {
   }, []);
 
   return (
-    <div className="flex items-center ml-3 mb-5 gap-4 w-full overflow-x-auto scrollbar-none ">
-      {users.map((u) => (
-        <section
-          key={u?.uid}
-          className="flex flex-col items-center justify-center text-center gap-1"
-          onClick={() => onSelectUser(u)}
-        >
-          <div className="w-16 h-16 rounded-full bg-[var(--black)] border-1 border-white/10 flex items-center justify-center">
-            {u.first_name?.[0]}
-          </div>
-          <p className="text-xs text-wrap truncate whitespace-break-spaces w-16">
-            {u.first_name}&nbsp;{u.last_name}
-          </p>
-        </section>
-      ))}
+    <div className="flex items-center ml-3 mb-5 gap-4 w-full overflow-x-auto scrollbar-none">
+      {loading
+        ? Array.from({ length: 8 }).map((_, i) => (
+            <section
+              key={i}
+              className="flex flex-col items-center justify-center gap-2 animate-pulse"
+            >
+              <div className="w-16 h-16 rounded-full bg-white/10" />
+              <div className="h-3 w-14 rounded bg-white/10" />
+            </section>
+          ))
+        : users.map((u) => (
+            <section
+              key={u?.uid}
+              className="flex flex-col items-center justify-center text-center gap-1 cursor-pointer"
+              onClick={() => onSelectUser(u)}
+            >
+              <div className="w-16 h-16 rounded-full bg-[var(--black)] border border-white/10 flex items-center justify-center">
+                {u.first_name?.[0]}
+              </div>
+              <p className="text-xs w-16 truncate whitespace-nowrap">
+                {u.first_name}&nbsp;{u.last_name}
+              </p>
+            </section>
+          ))}
     </div>
   );
 }

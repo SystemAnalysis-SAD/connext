@@ -1,6 +1,5 @@
 import { useEffect, useState, useCallback, useRef } from "react";
-import { FiUser, FiCheck, FiCheckCircle, FiSearch } from "react-icons/fi";
-import { CheckCheck, Check } from "lucide-react";
+import { FiSearch } from "react-icons/fi";
 import { socket } from "../socket";
 import api from "../api/api";
 import { format } from "date-fns";
@@ -12,7 +11,6 @@ export default function UserList({
   currentUserId,
   setActiveTab,
   selectedUserId,
-  receiver_id,
 }) {
   const [users, setUsers] = useState([]);
   const [search, setSearch] = useState("");
@@ -21,19 +19,19 @@ export default function UserList({
   const [unreadCounts, setUnreadCounts] = useState({});
   const [typingUserId, setTypingUserId] = useState(null);
 
+  const [loadingUsers, setLoadingUsers] = useState(true);
+  const [loadingMessages, setLoadingMessages] = useState(true);
+
   const typingTimeoutRef = useRef();
 
   /* ==================
      TYPING INDICATOR
-     ==================*/
+     ================== */
   useEffect(() => {
     const handleTypingStart = (data) => {
       setTypingUserId(String(data.sender_id));
 
-      if (typingTimeoutRef.current) {
-        clearTimeout(typingTimeoutRef.current);
-      }
-
+      clearTimeout(typingTimeoutRef.current);
       typingTimeoutRef.current = setTimeout(() => {
         setTypingUserId(null);
       }, 1200);
@@ -56,14 +54,18 @@ export default function UserList({
   }, [typingUserId]);
 
   /* =========================
-     FETCH USERS + LATEST MSGS
+     FETCH USERS + MESSAGES
      ========================= */
   const fetchUsersAndMessages = useCallback(async () => {
     if (!currentUserId) return;
 
     try {
+      setLoadingUsers(true);
+      setLoadingMessages(true);
+
       const usersRes = await api.get(`/users/${currentUserId}`);
       setUsers(usersRes.data || []);
+      setLoadingUsers(false);
 
       const messagesRes = await api.get(`${API_URL}/latest-messages`, {
         withCredentials: true,
@@ -91,22 +93,21 @@ export default function UserList({
 
       setLatestMessages(latest);
       setUnreadCounts(unread);
+      setLoadingMessages(false);
     } catch (err) {
       console.error("❌ Failed to fetch users/messages:", err);
+      setLoadingUsers(false);
+      setLoadingMessages(false);
     }
   }, [currentUserId]);
 
   /* =========================
-     SOCKET EVENTS (ONCE)
+     SOCKET EVENTS
      ========================= */
   useEffect(() => {
     if (!currentUserId) return;
 
-    const onConnect = () => {
-      socket.emit("register");
-    };
-
-    socket.on("connect", onConnect);
+    socket.emit("register");
 
     socket.on("new_message", (data) => {
       const senderId = String(data.sender_id);
@@ -116,13 +117,7 @@ export default function UserList({
 
       setLatestMessages((prev) => ({
         ...prev,
-        [otherUserId]: {
-          content: data.content,
-          date_sent: data.date_sent,
-          sender_id: data.sender_id,
-          is_seen: data.is_seen,
-          message_id: data.message_id,
-        },
+        [otherUserId]: data,
       }));
 
       if (senderId !== String(currentUserId) && !data.is_seen) {
@@ -134,14 +129,10 @@ export default function UserList({
     });
 
     socket.on("messages_seen", (data) => {
-      const senderId = String(data.sender_id);
-      setLatestMessages((prev) => {
-        if (!prev[senderId]) return prev;
-        return {
-          ...prev,
-          [senderId]: { ...prev[senderId], is_seen: true },
-        };
-      });
+      setLatestMessages((prev) => ({
+        ...prev,
+        [data.sender_id]: { ...prev[data.sender_id], is_seen: true },
+      }));
     });
 
     socket.on("user_online", ({ user_id }) => {
@@ -156,25 +147,13 @@ export default function UserList({
       });
     });
 
-    return () => {
-      socket.off("connect", onConnect);
-      socket.off("new_message");
-      socket.off("messages_seen");
-      socket.off("user_online");
-      socket.off("user_offline");
-    };
+    return () => socket.removeAllListeners();
   }, [currentUserId]);
 
-  /* =========================
-     INITIAL LOAD
-     ========================= */
   useEffect(() => {
     fetchUsersAndMessages();
   }, [fetchUsersAndMessages]);
 
-  /* =========================
-     SELECT USER
-     ========================= */
   const handleSelectUser = (user) => {
     onSelectUser(user);
     setActiveTab("chat");
@@ -199,101 +178,103 @@ export default function UserList({
   );
 
   /* =========================
+     SKELETON COMPONENT
+     ========================= */
+  const MessageSkeleton = () => (
+    <div className="mb-2 p-2 rounded-xl animate-pulse bg-white/5">
+      <div className="flex gap-3">
+        <div className="w-12 h-12 rounded-full bg-white/10" />
+        <div className="flex-1 space-y-2">
+          <div className="h-3 w-32 bg-white/10 rounded" />
+          <div className="h-3 w-48 bg-white/10 rounded" />
+        </div>
+      </div>
+    </div>
+  );
+
+  /* =========================
      RENDER
      ========================= */
   return (
-    <div className="h-screen w-full flex flex-col bg-[var(--black)] text-white ">
-      <div className="px-2 py-4 ">
+    <div className="h-screen w-full flex flex-col bg-[var(--black)] text-white">
+      {/* Search */}
+      <div className="px-2 py-4">
         <div className="relative">
           <FiSearch className="absolute left-3 top-3 text-gray-500" />
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search user..."
-            className="w-full border-1 text-sm border-white/3  bg-black/10 outline-none shadow-[inset_0_4px_6px_rgba(0,0,0,0.2)] rounded-full px-10 py-2"
+            className="w-full text-sm bg-black/10 rounded-full px-10 py-2 outline-none"
           />
         </div>
       </div>
 
+      {/* Vertical Users */}
       <UserListVertical onSelectUser={handleSelectUser} />
 
-      <div className="flex-1 overflow-auto px-2 md:px-4  ">
-        <h1 className="text-sm md:text-base font-semibold mb-3">Messages</h1>
-        {filteredUsers.map((user) => {
-          const msg = latestMessages[user.uid];
-          const unread = unreadCounts[user.uid] || 0;
-          const online = onlineUsers.has(String(user.uid));
+      {/* Messages */}
+      <div className="flex-1 overflow-auto px-2 md:px-4">
+        <h1 className="text-sm font-semibold mb-3 ml-1.5">Messages</h1>
 
-          return (
-            <div
-              key={user.uid}
-              onClick={() => handleSelectUser(user)}
-              className={`
-    mb-2 p-2 border border-white/3 cursor-pointer rounded-xl
-    bg-gradient-to-br from-white/2 to-black/10
-    shadow-2xl
-    transform transition-all duration-300
-    hover:scale-102 hover:shadow-3xl
-    active:scale-95 active:shadow-inner
-    ${selectedUserId === user.uid ? "bg-gray-800" : ""}
-  `}
-            >
-              <div className="flex gap-3">
-                <div className="relative">
-                  <div className="w-12 h-12 rounded-full bg-[var(--primary)] flex items-center justify-center">
-                    {user.first_name?.[0]}
-                  </div>
-                  <span
-                    className={`absolute border-1 border-[var(--black)] bottom-0 right-0 w-3 h-3 rounded-full ${
-                      online ? "bg-green-500" : "bg-gray-500"
-                    }`}
-                  />
-                  {unread > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-blue-500 text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                      {unread > 9 ? "9+" : unread}
-                    </span>
-                  )}
-                </div>
+        {loadingMessages
+          ? Array.from({ length: 6 }).map((_, i) => <MessageSkeleton key={i} />)
+          : filteredUsers.map((user) => {
+              const msg = latestMessages[user.uid];
+              const unread = unreadCounts[user.uid] || 0;
+              const online = onlineUsers.has(String(user.uid));
 
-                <div className="flex-1">
-                  <div className="flex justify-between">
-                    <h3
-                      className={`${
-                        !msg?.is_seen ? "font-medium" : "font-normal"
-                      }`}
-                    >
-                      {user.first_name} {user.last_name}
-                    </h3>
-                    {msg?.date_sent && (
-                      <span className="text-xs text-gray-400">
-                        {msg?.date_sent &&
-                          format(new Date(msg?.date_sent), "hh:mm a")}
-                      </span>
-                    )}
-                  </div>
+              return (
+                <div
+                  key={user.uid}
+                  onClick={() => handleSelectUser(user)}
+                  className={` mb-2 p-2 border border-white/3 cursor-pointer rounded-xl bg-gradient-to-br from-white/2 to-black/10 shadow-2xl transform transition-all duration-300 hover:scale-102 hover:shadow-3xl active:scale-95 active:shadow-inner focus:scale-95 focus:shadow-inner ${
+                    selectedUserId === user.uid ? "bg-gray-800" : ""
+                  } `}
+                >
+                  <div className="flex gap-3">
+                    <div className="relative">
+                      <div className="w-12 h-12 rounded-full bg-[var(--primary)] flex items-center justify-center">
+                        {user.first_name?.[0]}
+                      </div>
+                      <span
+                        className={`absolute bottom-0 right-0 w-3 h-3 rounded-full ${
+                          online ? "bg-green-500" : "bg-gray-500"
+                        }`}
+                      />
+                      {unread > 0 && (
+                        <span className="absolute -top-1 -right-1 bg-blue-500 text-xs w-5 h-5 rounded-full flex items-center justify-center">
+                          {unread > 9 ? "9+" : unread}
+                        </span>
+                      )}
+                    </div>
 
-                  <div className="flex items-center gap-1 text-sm text-gray-400">
-                    <span
-                      className={`truncate max-w-30 md:max-w-40 ${
-                        !msg?.is_seen && msg?.sender_id !== currentUserId
-                          ? "font-medium text-white"
-                          : "font-normal"
-                      }`}
-                    >
-                      {typingUserId === String(user.uid)
-                        ? "is typing..."
-                        : msg
-                        ? msg?.sender_id === currentUserId
-                          ? `You: ${msg?.content}`
-                          : msg?.content
-                        : ""}
-                    </span>
+                    <div className="flex-1">
+                      <div className="flex justify-between">
+                        <h3>
+                          {user.first_name} {user.last_name}
+                        </h3>
+                        {msg?.date_sent && (
+                          <span className="text-xs text-gray-400">
+                            {format(new Date(msg.date_sent), "hh:mm a")}
+                          </span>
+                        )}
+                      </div>
+
+                      <p className="text-sm text-gray-400 truncate">
+                        {typingUserId === String(user.uid)
+                          ? "is typing..."
+                          : msg
+                          ? msg.sender_id === currentUserId
+                            ? `You: ${msg.content}`
+                            : msg.content
+                          : ""}
+                      </p>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </div>
-          );
-        })}
+              );
+            })}
       </div>
     </div>
   );

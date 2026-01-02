@@ -162,7 +162,7 @@ def profile():
         conn = get_db_connection()
         cursor = conn.cursor()
         cursor.execute(
-            "SELECT uid, username, first_name, last_name FROM user_table WHERE uid = %s", 
+            "SELECT uid, username, first_name, last_name, bio, email, profile_picture, date_created FROM user_table WHERE uid = %s", 
             (int(current_user_id),)
         )
         user_data = cursor.fetchone()

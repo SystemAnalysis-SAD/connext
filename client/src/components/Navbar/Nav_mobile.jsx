@@ -40,11 +40,11 @@ export default function NavMobile() {
   const backgroundVariants = {
     inactive: {
       width: "40px",
-      backgroundColor: "transparent",
+      backgroundColor: "rgba(109, 131, 242, 0)",
     },
     active: {
       width: "120px",
-      backgroundColor: "var(--primary)",
+      backgroundColor: "rgb(109, 131, 242)",
       transition: {
         type: "spring",
         stiffness: 200,
@@ -55,7 +55,7 @@ export default function NavMobile() {
 
   return (
     <motion.nav
-      className={`w-fit text-xl z-100 fixed bottom-0 md:hidden m-5 flex bg-black/30 pl-3 pr-4.5 py-2 rounded-full items-center gap-3 shadow-lg backdrop-blur-sm ${
+      className={`w-fit text-xl z-100 fixed bottom-0 md:hidden m-5 flex bg-black/30 pl-3 pr-4.5 py-2 rounded-full items-center gap-3 shadow-lg backdrop-blur-lg saturate-150 ${
         view === "chat" ? "hidden" : "block"
       }`}
       variants={navVariants}
@@ -121,23 +121,23 @@ export default function NavMobile() {
         <motion.div
           className="absolute inset-0 rounded-full"
           variants={backgroundVariants}
-          animate={view === "menu" ? "active" : "inactive"}
+          animate={view === "profile" ? "active" : "inactive"}
         />
 
         <div
           className={`relative z-10 flex gap-2 items-center px-4  py-2 ${
-            view === "menu" && "mr-4"
+            view === "profile" && "mr-4"
           }`}
         >
           <motion.div
             variants={iconVariants}
-            animate={view === "menu" ? "active" : "inactive"}
+            animate={view === "profile" ? "active" : "inactive"}
           >
             <CiMenuFries className="text-white" />
           </motion.div>
 
           <AnimatePresence mode="wait">
-            {view === "menu" && (
+            {view === "profile" && (
               <motion.span
                 className="text-white text-sm font-medium whitespace-nowrap"
                 initial={{ opacity: 0, width: 0 }}
@@ -145,7 +145,7 @@ export default function NavMobile() {
                 exit={{ opacity: 0, width: 0 }}
                 transition={{ duration: 0.2 }}
               >
-                Menu
+                Profile
               </motion.span>
             )}
           </AnimatePresence>

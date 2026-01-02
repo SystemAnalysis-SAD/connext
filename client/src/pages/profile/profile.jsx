@@ -42,79 +42,86 @@ export default function ProfilePage() {
     { label: "Following", value: "284" },
   ];
 
+  const accountAge = () => {
+    const accountCreated = new Date().toISOString(user?.date_created);
+    const newDate = new Date(accountCreated);
+    const date = new Date();
+    const diffMS = date - newDate;
+    const diffDays = Math.floor(diffMS / (1000 * 60 * 60 * 24));
+
+    return `${diffDays}`;
+  };
+
   return (
     <div className="min-h-screen bg-[var(--black)] text-white">
       <NavSettings />
 
-      <div className="w-full mx-auto px-4 py-8">
+      <div className="w-full ">
         {/* Profile Header */}
-        <div className="flex flex-row gap-8 mb-8">
+        <div className="flex flex-col gap-5 mb-8">
           {/* Profile Image */}
-          <div className="md:w-1/3 flex justify-center">
-            <div className="relative">
-              <div className="w-22 h-22 rounded-full bg-gradient-to-br from-purple-600 to-pink-500 p-1">
-                <div className="w-20 h-20 rounded-full overflow-hidden bg-black">
+          <div className="w-full flex justify-center">
+            <div className="relative w-full bg-black/20 h-30 rounded-b-xl">
+              <div className="w-17 h-17 rounded-full bg-gradient-to-br from-purple-600 to-pink-500 p-1 absolute bottom-0 translate-y-5 ml-3">
+                <div className="w-15 h-15 rounded-full overflow-hidden bg-black">
                   <img
                     src="https://api.dicebear.com/7.x/avataaars/svg?seed=John&background=000000"
                     alt="Profile"
-                    className="w-20 object-cover"
+                    className="w-15 object-cover"
                   />
                 </div>
               </div>
-              <button className="absolute bottom-2 right-2 w-10 h-10 bg-[var(--primary)] rounded-full flex items-center justify-center hover:scale-110 transition-transform">
-                <Camera className="w-5 h-5" />
-              </button>
             </div>
           </div>
 
           {/* Profile Info */}
-          <div className="md:w-2/3 space-y-4">
+          <div className="w-full space-y-2 mx-auto px-4 pb-8 pt-3">
             {/* Username & Actions */}
             <div className="flex items-center gap-4 mb-4">
-              <h1 className="text-2xl font-bold">{user.username}</h1>
+              <h1 className="text-lg font-bold">
+                {user?.first_name}&nbsp;{user?.last_name}
+                <p className="font-normal text-sm">@{user?.username}</p>
+              </h1>
             </div>
 
             {/* Stats */}
-            <div className="flex gap-8 mb-4">
+            <div className="flex gap-8 mb-4 w-full">
               {stats.map((stat) => (
                 <div key={stat.label} className="text-center">
-                  <div className="text-xl font-bold">{stat.value}</div>
-                  <div className="text-sm text-gray-400">{stat.label}</div>
+                  <div className="text-sm font-bold">{stat.value}</div>
+                  <div className="text-xs text-gray-400">{stat.label}</div>
                 </div>
               ))}
             </div>
 
             {/* Bio */}
-            <div className="space-y-2">
-              <h2 className="font-bold">John Doe</h2>
-              <p className="text-gray-300">
-                Digital Creator • Photographer • Tech Enthusiast
-              </p>
-              <p className="text-gray-400">
-                Building the future one pixel at a time ✨
-              </p>
+            <div className="space-y-8">
+              <p className="text-gray-400">{user?.bio}</p>
 
-              <div className="flex flex-wrap gap-4 text-sm text-gray-400">
+              <div className="flex flex-wrap gap-3 text-sm text-gray-400">
                 <div className="flex items-center gap-2">
                   <MapPin className="w-4 h-4" />
                   <span>San Francisco, CA</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <LinkIcon className="w-4 h-4" />
-                  <a href="#" className="text-[var(--primary)] hover:underline">
-                    johndoe.me
+                  <a
+                    href="_facebooklink"
+                    className="text-[var(--primary)] hover:underline"
+                  >
+                    {user?.username}.me
                   </a>
                 </div>
                 <div className="flex items-center gap-2">
                   <Calendar className="w-4 h-4" />
-                  <span>Joined March 2023</span>
+                  <span>{accountAge()}</span>
                 </div>
               </div>
 
               {/* Followers Preview */}
-              <div className="flex items-center gap-2 mt-4">
+              <div className="flex items-center gap-2 mt-4 w-full">
                 <div className="flex -space-x-2">
-                  {[1, 2, 3, 4].map((i) => (
+                  {[1, 2, 3].map((i) => (
                     <div
                       key={i}
                       className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 border border-[var(--black)]"
@@ -131,7 +138,7 @@ export default function ProfilePage() {
         </div>
 
         {/* Tabs */}
-        <div className="border-b border-white/10 mb-6">
+        <div className="border-b border-white/10 mb-6 mx-3">
           <div className="flex gap-8">
             {tabs.map((tab) => {
               const Icon = tab.icon;

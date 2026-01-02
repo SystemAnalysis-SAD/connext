@@ -2,6 +2,7 @@ import { createContext, useContext, useState, useEffect } from "react";
 import api, { checkAuthStatus } from "../api/api";
 import { connectSocket, disconnectSocket } from "../socket";
 import LoadingScreen from "../components/loadingScreen";
+import { redirect } from "react-router-dom";
 
 const AuthContext = createContext();
 export const useAuth = () => useContext(AuthContext);
@@ -73,7 +74,7 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
   };
 
-  const value = { user, login, register, logout, loading, message };
+  const value = { user, setUser, login, register, logout, loading, message };
 
   if (booting) return <LoadingScreen />;
 
