@@ -41,8 +41,10 @@ export const AuthProvider = ({ children }) => {
       await api.post("/api/login", credentials);
       const profile = await api.get("/api/profile");
       setUser(profile.data);
+      return true; // login succeeded
     } catch (err) {
-      showMessage(err?.response?.data?.err);
+      showMessage(err.response.data.err || "Invalid credentials");
+      return false; // login failed
     } finally {
       setLoading(false);
     }

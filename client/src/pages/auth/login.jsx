@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { HiOutlineXCircle } from "react-icons/hi";
 import { useAuth } from "../../context/authContext";
 import {
   FiUser,
@@ -8,6 +9,7 @@ import {
   FiArrowRight,
   FiEye,
   FiEyeOff,
+  FiX,
 } from "react-icons/fi";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { Link, useNavigate } from "react-router-dom";
@@ -29,8 +31,10 @@ export default function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await login(data);
-    navigate("/me");
+    const success = await login(data);
+    if (success) {
+      navigate("/me"); // only navigate on success
+    }
   };
 
   return (
@@ -66,7 +70,7 @@ export default function Login() {
                   value={data.username}
                   onChange={handleChange}
                   required
-                  className="w-full pl-10 pr-3 py-3 text-white text-sm md:text-base  border-b-2 border-[var(--secondary)]/40 rounded-sm focus:outline-none  transition placeholder:text-slate-600 "
+                  className="w-full pl-10 pr-3 py-3 text-white text-sm md:text-base shadow-[inset_0_4px_6px_rgba(0,0,0,0.1)]  border-b-2 border-[var(--secondary)]/40 rounded-xl focus:outline-none  transition placeholder:text-slate-600 "
                   placeholder="Username"
                 />
               </div>
@@ -84,7 +88,7 @@ export default function Login() {
                     value={data.password}
                     onChange={handleChange}
                     required
-                    className="w-full pl-10 pr-8 py-3 text-white text-sm md:text-base border-b-2 border-[var(--secondary)]/40 rounded-sm focus:outline-none  transition placeholder:text-slate-600"
+                    className="w-full pl-10 pr-8 py-3 text-white text-sm md:text-base shadow-[inset_0_4px_6px_rgba(0,0,0,0.1)] border-b-2 border-[var(--secondary)]/40 rounded-xl  focus:outline-none  transition placeholder:text-slate-600"
                     placeholder="Password"
                   />
                   <div
@@ -104,6 +108,16 @@ export default function Login() {
                   Forgot password?
                 </a>
               </div>
+              {message && (
+                <div
+                  className={`absolute rounded-lg text-xs -translate-y-4
+                    text-red-400 flex gap-1 items-center
+                `}
+                >
+                  <HiOutlineXCircle className="translate-y-[1px]" />
+                  {message}
+                </div>
+              )}
             </div>
 
             <button
@@ -111,7 +125,7 @@ export default function Login() {
               disabled={
                 loading || Object.values(data).some((values) => !values)
               }
-              className="w-full text-sm md:text-base flex items-center justify-center gap-2 py-3.5 px-4 bg-[var(--primary)] hover:bg-[var(--primary)]/80 text-white font-medium rounded-lg transition duration-200 focus:outline-none focus:ring-2 focus:ring-slate-600 focus:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed group"
+              className="w-full text-sm cursor-pointer md:text-base flex items-center justify-center gap-2 py-3.5 px-4 bg-[var(--primary)] hover:bg-[var(--primary)]/80 text-white font-medium rounded-lg transition duration-200 focus:outline-none focus:ring-2 focus:ring-slate-600  focus:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed group"
             >
               {loading ? (
                 <>
@@ -124,18 +138,6 @@ export default function Login() {
                 </>
               )}
             </button>
-
-            {message && (
-              <div
-                className={`p-4 rounded-lg text-sm ${
-                  message.toLowerCase().includes("invalid")
-                    ? "bg-red-50 text-red-600 border border-red-100"
-                    : "bg-emerald-50 text-emerald-600 border border-emerald-100"
-                }`}
-              >
-                {message}
-              </div>
-            )}
 
             <div className="relative my-6">
               <div className="absolute inset-0 flex items-center">
@@ -150,7 +152,7 @@ export default function Login() {
 
             <Link
               to="/register"
-              className="w-full text-sm md:text-base flex items-center justify-center gap-2 py-3.5 px-4 border-2 border-[var(--secondary)]/40 hover:border-slate-400 text-white font-medium rounded-lg transition duration-200 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:border-transparent group"
+              className="w-full text-sm md:text-base flex items-center justify-center gap-2 py-3.5 px-4 border-2 border-white/2 shadow-xl hover:border-white/6 text-white font-medium rounded-lg transition duration-200 focus:outline-none focus:ring-2 focus:ring-white/6 focus:border-transparent group"
             >
               <FiUser className="w-4 h-4 text-white " />
               <span>Create new account</span>

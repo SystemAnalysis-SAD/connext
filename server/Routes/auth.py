@@ -206,6 +206,32 @@ def get_users(id):
         print(f"❌ Error getting users: {e}")
         return jsonify({"error": str(e)}), 500
     
+@auth_bp.route("/connext_users", methods=["GET"])
+@jwt_required()
+def get_user_map():
+    """Get all users"""
+    try:
+        current_user_id = get_jwt_identity()
+        if not current_user_id:
+            return jsonify({ "err": "Invalid User"})
+        
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        query = """
+        SELECT uid, username, first_name, last_name, gender
+        FROM user_table
+        ORDER BY first_name;
+        """
+        cursor.execute(query, (current_user_id,))
+        users = cursor.fetchall()
+        cursor.close()
+        conn.close()
+        
+        return jsonify(users)
+    except Exception as e:
+        print(f"❌ Error getting users: {e}")
+        return jsonify({"error": str(e)}), 500
+    
 
 @auth_bp.route("/auth/verify", methods=["GET"])
 @jwt_required()

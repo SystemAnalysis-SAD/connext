@@ -18,8 +18,8 @@ export default function MessageInput({
   sendMessage,
 }) {
   return (
-    <div className="sticky bottom-0 border-t border-gray-800 bg-[var(--black)] p-4">
-      <div className="w-full mx-auto">
+    <div className="sticky bottom-0  bg-[var(--black)] p-4">
+      <div className="w-full mx-auto ">
         {editingMessage && (
           <div className="mb-2 text-sm text-yellow-400 flex items-center gap-2">
             <Edit2 className="w-4 h-4" />
@@ -32,7 +32,7 @@ export default function MessageInput({
             </button>
           </div>
         )}
-        <div className="flex items-end gap-2 z-50">
+        <div className="flex items-end gap-2 z-50 ">
           {showEmojiPicker && (
             <div
               className={`fixed w-full md:w-fit z-50 items-center rounded-t-2xl shadow-xl  ${
@@ -73,6 +73,7 @@ export default function MessageInput({
                 height={window.innerWidth < 768 ? 400 : 400}
                 width="full"
               />
+
               <button className="absolute top-2 right-4 p-2 rounded-full hover:bg-gray-800">
                 <X className="w-5 h-5 text-gray-300" />
               </button>
@@ -82,7 +83,7 @@ export default function MessageInput({
           <div className="flex relative min-w-0 w-full">
             <textarea
               ref={textareaRef}
-              className="w-full bg-black/50 overflow-hidden border border-gray-700 rounded-full px-4 py-3 pr-12 focus:outline-none focus:ring-1 focus:ring-blue-800/70 focus:border-transparent resize-none text-white placeholder-gray-500"
+              className="w-full shadow-[inset_0_4px_6px_rgba(0,0,0,0.2)] overflow-hidden border border-white/3 bg-black/10 rounded-full px-4 py-3 pr-12 focus:outline-none focus:ring-1 focus:ring-blue-800/80 focus:border-transparent resize-none text-white placeholder-gray-500"
               value={text}
               onChange={handleTextChange}
               onKeyPress={handleKeyPress}
@@ -94,16 +95,18 @@ export default function MessageInput({
                 lineHeight: "1.5",
               }}
             />
-            <button
-              onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-              className="absolute right-3 top-6 transform -translate-y-1/2 p-1 hover:bg-gray-800 rounded-full transition-colors"
-            >
-              <Smile className="w-5 h-5 text-gray-300" />
-            </button>
+            <div className="hidden md:block">
+              <button
+                onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                className="absolute right-3 top-6 transform -translate-y-1/2 p-1 hover:bg-gray-800 rounded-full transition-colors"
+              >
+                <Smile className="w-5 h-5 text-gray-300" />
+              </button>
+            </div>
           </div>
 
           <button
-            className={`p-3 rounded-full transition-all duration-200 flex-shrink-0 ${
+            className={`px-4 py-2.5 rounded-full transition-all duration-200 flex-shrink-0 absolute right-5 -translate-y-1 ${
               text.trim()
                 ? "bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white"
                 : "bg-gray-700 text-gray-500 cursor-not-allowed"

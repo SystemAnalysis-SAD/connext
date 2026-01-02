@@ -1,10 +1,11 @@
 import { useEffect, useState, useCallback, useRef } from "react";
-import { FiUser, FiCheck, FiCheckCircle } from "react-icons/fi";
+import { FiUser, FiCheck, FiCheckCircle, FiSearch } from "react-icons/fi";
 import { CheckCheck, Check } from "lucide-react";
 import { socket } from "../socket";
 import api from "../api/api";
 import { format } from "date-fns";
 import { API_URL } from "../config/config";
+import UserListVertical from "../components/userList_vertical";
 
 export default function UserList({
   onSelectUser,
@@ -202,19 +203,22 @@ export default function UserList({
      ========================= */
   return (
     <div className="h-screen w-full flex flex-col bg-[var(--black)] text-white">
-      <div className="p-4 border-b border-gray-800">
+      <div className="px-2 py-4 ">
         <div className="relative">
-          <FiUser className="absolute left-3 top-3 text-gray-500" />
+          <FiSearch className="absolute left-3 top-3 text-gray-500" />
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search user..."
-            className="w-full bg-black/50 rounded-full px-10 py-2"
+            className="w-full border-1 text-sm border-white/3 bg-gradient-to-br from-white/1 to-[var(--black)] outline-none shadow-[inset_0_4px_6px_rgba(0,0,0,0.2)] rounded-full px-10 py-2"
           />
         </div>
       </div>
 
-      <div className="flex-1 overflow-auto">
+      <UserListVertical onSelectUser={handleSelectUser} />
+
+      <div className="flex-1 overflow-auto px-2 md:px-4  ">
+        <h1 className="text-sm md:text-base font-semibold mb-3">Messages</h1>
         {filteredUsers.map((user) => {
           const msg = latestMessages[user.uid];
           const unread = unreadCounts[user.uid] || 0;
@@ -224,9 +228,15 @@ export default function UserList({
             <div
               key={user.uid}
               onClick={() => handleSelectUser(user)}
-              className={`mb-2 mx-4 p-2 border-2 border-black/20 shadow-md bg-black/50 cursor-pointer rounded-xl ${
-                selectedUserId === user.uid ? "bg-gray-800" : ""
-              }`}
+              className={`
+    mb-2 p-2 border border-white/3 cursor-pointer rounded-xl
+    bg-gradient-to-t from-white/1 to-black/3
+    shadow-2xl
+    transform transition-all duration-300
+    hover:scale-102 hover:shadow-3xl
+    active:scale-95 active:shadow-inner
+    ${selectedUserId === user.uid ? "bg-gray-800" : ""}
+  `}
             >
               <div className="flex gap-3">
                 <div className="relative">

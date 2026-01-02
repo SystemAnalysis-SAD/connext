@@ -1,5 +1,4 @@
 import { memo } from "react";
-import { FiUser, FiLock } from "react-icons/fi";
 
 const InputField = memo(
   ({ icon, type, name, value, onChange, placeholder }) => {
