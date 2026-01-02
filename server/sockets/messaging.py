@@ -6,9 +6,15 @@ from Utils.rooms import private_room
 from database.db import get_db_connection
 import pytz
 from datetime import datetime
-from Utils.message_encrypt import encrypt_msg, decrypt_message
+from extensions import fernet
 
 messaging_bp = Blueprint("messaging", __name__)
+
+def encrypt_msg(message: str) -> str:
+    return fernet.encrypt(message.encode()).decode()
+
+def decrypt_message(message: str) -> str:
+    return fernet.decrypt(message.encode()).decode()
 
 @socketio.on("send_message")
 def handle_send_message(data):
