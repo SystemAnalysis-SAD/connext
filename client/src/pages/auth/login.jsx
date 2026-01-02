@@ -51,7 +51,7 @@ export default function Login() {
             />
           </header>
 
-          <div className="text-start mb-10">
+          <div className="text-start mb-8">
             <h1 className="text-5xl text-slate-200 abode">Login</h1>
             <p className="text-slate-500 mt-2 text-sm md:text-base">
               Sign in to your Connext account
@@ -60,6 +60,12 @@ export default function Login() {
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-1">
+              <label
+                htmlFor="username"
+                className="text-slate-500 text-xs font-semibold "
+              >
+                Username
+              </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <FiUser className="h-5 w-5 text-slate-400" />
@@ -70,7 +76,7 @@ export default function Login() {
                   value={data.username}
                   onChange={handleChange}
                   required
-                  className="w-full pl-10 pr-3 py-3 text-white text-sm md:text-base shadow-[inset_0_4px_6px_rgba(0,0,0,0.1)]  border-b-2 border-[var(--secondary)]/40 rounded-xl focus:outline-none  transition placeholder:text-slate-600 "
+                  className="w-full pl-10 pr-3 py-3 text-white text-sm md:text-base bg-black/10 shadow-[inset_0_4px_6px_rgba(0,0,0,0.1)]  border-b-2 border-[var(--secondary)]/40 rounded-xl focus:outline-none  transition placeholder:text-slate-600 "
                   placeholder="Username"
                 />
               </div>
@@ -78,22 +84,28 @@ export default function Login() {
 
             <div>
               <div className="space-y-1">
-                <div className="relative">
+                <label
+                  htmlFor="password"
+                  className="text-slate-500 text-xs font-semibold "
+                >
+                  Password
+                </label>
+                <div className="relative pt-1">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <FiLock className="h-5 w-5 text-slate-400" />
                   </div>
+
                   <input
                     name="password"
                     type={!showPassword ? "password" : "text"}
                     value={data.password}
                     onChange={handleChange}
                     required
-                    className="w-full pl-10 pr-8 py-3 text-white text-sm md:text-base shadow-[inset_0_4px_6px_rgba(0,0,0,0.1)] border-b-2 border-[var(--secondary)]/40 rounded-xl  focus:outline-none  transition placeholder:text-slate-600"
-                    placeholder="Password"
+                    className="w-full pl-10 pr-8 py-3 text-white text-sm md:text-base bg-black/10 shadow-[inset_0_4px_6px_rgba(0,0,0,0.1)] border-b-2 border-[var(--secondary)]/40 rounded-xl  focus:outline-none  transition placeholder:text-slate-600"
                   />
                   <div
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-0 -translate-x-2 -translate-y-7 text-slate-500"
+                    className="absolute right-0 -translate-x-3 -translate-y-7.5 text-slate-500"
                   >
                     {showPassword ? <FiEye /> : <FiEyeOff />}
                   </div>

@@ -202,7 +202,7 @@ export default function UserList({
      RENDER
      ========================= */
   return (
-    <div className="h-screen w-full flex flex-col bg-[var(--black)] text-white">
+    <div className="h-screen w-full flex flex-col bg-[var(--black)] text-white ">
       <div className="px-2 py-4 ">
         <div className="relative">
           <FiSearch className="absolute left-3 top-3 text-gray-500" />
@@ -210,7 +210,7 @@ export default function UserList({
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search user..."
-            className="w-full border-1 text-sm border-white/3 bg-gradient-to-br from-white/1 to-[var(--black)] outline-none shadow-[inset_0_4px_6px_rgba(0,0,0,0.2)] rounded-full px-10 py-2"
+            className="w-full border-1 text-sm border-white/3  bg-black/10 outline-none shadow-[inset_0_4px_6px_rgba(0,0,0,0.2)] rounded-full px-10 py-2"
           />
         </div>
       </div>
@@ -230,7 +230,7 @@ export default function UserList({
               onClick={() => handleSelectUser(user)}
               className={`
     mb-2 p-2 border border-white/3 cursor-pointer rounded-xl
-    bg-gradient-to-t from-white/1 to-black/3
+    bg-gradient-to-br from-white/2 to-black/10
     shadow-2xl
     transform transition-all duration-300
     hover:scale-102 hover:shadow-3xl

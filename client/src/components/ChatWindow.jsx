@@ -611,7 +611,7 @@ export default function ChatWindow({ sender_id, receiver, setActiveTab }) {
               </p>
             </div>
           ) : (
-            <div className="space-y-0 pt-20">
+            <div className="space-y-0 pt-20 pb-14">
               {messages.map((msg, index) => {
                 const isSender = msg.sender_id == sender_id;
                 const isLastMessage = index === messages.length - 1;

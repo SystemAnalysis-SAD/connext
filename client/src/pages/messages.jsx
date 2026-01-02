@@ -21,7 +21,7 @@ export default function Messages() {
   };
 
   return (
-    <div className="flex h-full bg-[var(--black)] text-gray-100">
+    <div className="flex h-full bg-[var(--black)] text-gray-100 overflow-hidden">
       {/* User List */}
       <div
         className={`
@@ -29,7 +29,7 @@ export default function Messages() {
           md:block w-full md:w-96 md:border-r border-gray-700 bg-[var(--black)] overflow-hidden
         `}
       >
-        <div className="px-4 pt-4 pb-1 flex items-center justify-between">
+        <div className="px-4 pt-4 pb-1 flex items-center justify-between ">
           <p className="text-3xl font-bold">
             con<span className="text-[var(--primary)]">next</span>
           </p>

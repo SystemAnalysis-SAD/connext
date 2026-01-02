@@ -1,5 +1,5 @@
-import React from "react";
-import { ArrowUpRight, Send, Smile, Edit2, X } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { ArrowUpRight, Send, Smile, Edit2, X, Plus } from "lucide-react";
 import EmojiPicker from "emoji-picker-react";
 
 export default function MessageInput({
@@ -17,8 +17,16 @@ export default function MessageInput({
   handleKeyPress,
   sendMessage,
 }) {
+  const [width, setWidth] = useState(window.innerWidth);
+
+  useEffect(() => {
+    const handleResize = () => setWidth(window.innerWidth);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   return (
-    <div className="sticky bottom-0  bg-[var(--black)] p-4">
+    <div className="fixed w-full md:w-[calc(100%-24rem)] bottom-0 bg-[var(--black)] p-2">
       <div className="w-full mx-auto ">
         {editingMessage && (
           <div className="mb-2 text-sm text-yellow-400 flex items-center gap-2">
@@ -37,8 +45,8 @@ export default function MessageInput({
             <div
               className={`fixed w-full md:w-fit z-50 items-center rounded-t-2xl shadow-xl  ${
                 window.innerWidth < 768
-                  ? "inset-x-0 -bottom-0  flex-col transition-transform duration-300 h-fit block md:hidden"
-                  : "bottom-20 right-0 md:right-20 w-80 h-96 hidden md:block"
+                  ? "inset-x-0 -bottom-0   flex-col transition-transform duration-300 h-fit block md:hidden"
+                  : "bottom-20 right-0 md:left-100 w-80 h-96 hidden md:block"
               }`}
               style={
                 window.innerWidth < 768
@@ -83,7 +91,7 @@ export default function MessageInput({
           <div className="flex relative min-w-0 w-full">
             <textarea
               ref={textareaRef}
-              className="w-full shadow-[inset_0_4px_6px_rgba(0,0,0,0.2)] overflow-hidden border border-white/3 bg-black/10 rounded-full px-4 py-3 pr-12 focus:outline-none focus:ring-1 focus:ring-blue-800/80 focus:border-transparent resize-none text-white placeholder-gray-500"
+              className="w-full backdrop-blur-2xl shadow-[inset_0_4px_6px_rgba(0,0,0,0.2)] overflow-hidden border border-white/3 bg-black/10 rounded-3xl px-4 py-3 pr-15 pl-11 outline-none resize-none text-white placeholder-gray-500"
               value={text}
               onChange={handleTextChange}
               onKeyPress={handleKeyPress}
@@ -95,18 +103,24 @@ export default function MessageInput({
                 lineHeight: "1.5",
               }}
             />
-            <div className="hidden md:block">
-              <button
-                onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-                className="absolute right-3 top-6 transform -translate-y-1/2 p-1 hover:bg-gray-800 rounded-full transition-colors"
-              >
-                <Smile className="w-5 h-5 text-gray-300" />
-              </button>
+            <div className="">
+              {width > 740 ? (
+                <button
+                  onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                  className="absolute -bottom-1 left-3 transform -translate-y-1/2 p-1 hover:bg-gray-800 rounded-full transition-colors"
+                >
+                  <Smile className="w-5 h-5 text-gray-300" />
+                </button>
+              ) : (
+                <button className="absolute -bottom-1 bg-white left-3 transform -translate-y-1/2 p-1 hover:bg-gray-800 rounded-full transition-colors">
+                  <Plus className="w-5 h-5 text-black" />
+                </button>
+              )}
             </div>
           </div>
 
           <button
-            className={`px-4 py-2.5 rounded-full transition-all duration-200 flex-shrink-0 absolute right-5 -translate-y-1 ${
+            className={`px-4 py-2.5 rounded-full transition-all duration-200 flex-shrink-0 absolute right-3 -translate-y-1 ${
               text.trim()
                 ? "bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white"
                 : "bg-gray-700 text-gray-500 cursor-not-allowed"

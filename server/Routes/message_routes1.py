@@ -5,7 +5,7 @@ from Utils.rooms import private_room
 from extensions import socketio
 from services.online_users import online_manager
 from flask_socketio import emit
-from Utils.message_encrypt import decrypt_message
+from ..Utils.message_encrypt import decrypt_message
 
 message_bp = Blueprint("message_bp", __name__)
 

@@ -26,7 +26,6 @@ export default function ChatHeader({
               <div className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 flex items-center justify-center text-white font-semibold">
                 {receiver?.first_name?.charAt(0)?.toUpperCase()}
               </div>
-              <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-[var(--black)]"></div>
             </div>
             <div className="text-center md:text-left">
               <div className="flex items-center">
@@ -36,7 +35,7 @@ export default function ChatHeader({
                 <FiChevronRight className="translate-y-[1px] ml-2 text-sm text-white/30 " />
               </div>
               <div className="flex t gap-1">
-                <p className="text-xs text-gray-400">{receiver.username}</p>
+                <p className="text-xs text-gray-400">@{receiver.username}</p>
               </div>
             </div>
           </div>

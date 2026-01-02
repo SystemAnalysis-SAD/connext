@@ -1,6 +1,8 @@
 import NavMobile from "../components/Navbar/Nav_mobile";
 import { useViewContext } from "../context/viewContext";
 import Messages from "./messages";
+import ProfilePage from "./profile/profile";
+import ProfileSettings from "./profile/profile";
 import Profile from "./profile/profile";
 
 export default function Layout() {
@@ -11,7 +13,7 @@ export default function Layout() {
       {/* Main Views */}
       <div className="flex-1 relative">
         {["messages", "chat"].includes(view) && <Messages />}
-        {view === "profile" && <Profile />}
+        {view === "profile" && <ProfilePage />}
       </div>
 
       {/* Mobile Navbar */}
