@@ -5,10 +5,13 @@ from Utils.rooms import private_room
 from extensions import socketio
 from services.online_users import online_manager
 from flask_socketio import emit
-from ..Utils.message_encrypt import decrypt_message
+from extensions import fernet
 
 message_bp = Blueprint("message_bp", __name__)
 
+#encrypt all messages
+def decrypt_message(message: str) -> str:
+    return fernet.decrypt(message.encode()).decode()
 
 """get all messages"""
 @message_bp.route("/messages/<int:other_user_id>", methods=["GET"])
