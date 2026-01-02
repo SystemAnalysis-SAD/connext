@@ -21,6 +21,8 @@ export default function MessageInput({
 
   useEffect(() => {
     const handleResize = () => setWidth(window.innerWidth);
+
+    handleResize();
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
@@ -104,7 +106,7 @@ export default function MessageInput({
               }}
             />
             <div className="">
-              {width > 740 ? (
+              {width > 768 ? (
                 <button
                   onClick={() => setShowEmojiPicker(!showEmojiPicker)}
                   className="absolute -bottom-1 left-3 transform -translate-y-1/2 p-1 hover:bg-gray-800 rounded-full transition-colors"

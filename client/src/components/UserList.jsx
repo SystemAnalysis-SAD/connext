@@ -205,7 +205,7 @@ export default function UserList({
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search user..."
-            className="w-full text-sm bg-black/10 rounded-full px-10 py-2 outline-none"
+            className="w-full text-sm bg-black/10 shadow-[inset_0_4px_6px_rgba(0,0,0,0.1)] rounded-full px-10 py-2 outline-none"
           />
         </div>
       </div>

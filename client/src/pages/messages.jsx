@@ -13,6 +13,9 @@ export default function Messages() {
 
   useEffect(() => {
     const handleResize = () => setWidth(window.innerWidth);
+
+    handleResize();
+
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
@@ -41,7 +44,7 @@ export default function Messages() {
               con<span className="text-[var(--primary)]">next</span>
             </p>
           ) : (
-            <p className="text-2xl font-bold">{user.username}</p>
+            <p className="text-2xl font-bold">{user?.username}</p>
           )}
           <img src="/connext(1).png" alt="logo" width={33} />
         </div>
