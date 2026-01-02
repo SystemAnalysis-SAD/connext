@@ -56,7 +56,7 @@ export default function NavMobile() {
   return (
     <motion.nav
       className={`w-fit text-xl z-100 fixed bottom-0 md:hidden m-5 flex bg-black/30 pl-3 pr-4.5 py-2 rounded-full items-center gap-3 shadow-lg backdrop-blur-sm ${
-        !["chat"].includes(view) ? "block" : "hidden"
+        view === "chat" ? "hidden" : "block"
       }`}
       variants={navVariants}
       initial="hidden"

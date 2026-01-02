@@ -3,12 +3,13 @@ import UserList from "../components/UserList";
 import ChatWindow from "../components/ChatWindow";
 import { FiMessageSquare, FiUsers } from "react-icons/fi";
 import { useAuth } from "../context/authContext";
+import { useViewContext } from "../context/viewContext";
 
 export default function Messages() {
   const { user } = useAuth();
   const [activeUser, setActiveUser] = useState(null);
-  const [view, setView] = useState("users"); // "users" or "chat"
-  const [messageView, setMessageView] = useState("users");
+  const { view, setView } = useViewContext(); // "users" or "chat"
+  console.log(view);
 
   const handleUserSelect = (user) => {
     setActiveUser(user);
@@ -16,7 +17,7 @@ export default function Messages() {
   };
 
   const handleBackToUsers = () => {
-    setView("users");
+    setView("messages");
   };
 
   return (
@@ -24,7 +25,7 @@ export default function Messages() {
       {/* User List */}
       <div
         className={`
-          ${view === "users" ? "block" : "hidden"}
+          ${view === "messages" ? "block" : "hidden"}
           md:block w-full md:w-96 md:border-r border-gray-700 bg-[var(--black)] overflow-hidden
         `}
       >

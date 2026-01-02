@@ -6,7 +6,7 @@ export const useViewContext = () => useContext(ViewContext);
 
 export const ViewContextProvider = ({ children }) => {
   const [view, setView] = useState("messages");
-  const [messageView, setMessageView] = useState("users"); // "users" | "chat"
+  const [messageView, setMessageView] = useState("users");
 
   return (
     <ViewContext.Provider
