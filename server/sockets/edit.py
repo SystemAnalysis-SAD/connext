@@ -5,8 +5,16 @@ from Models.get_db_connection import get_db_connection
 from datetime import datetime
 import pytz
 from Utils.rooms import private_room
+from extensions import fernet
 
 edit_bp = Blueprint("edit", __name__)
+
+def encrypt_msg(message: str) -> str:
+    return fernet.encrypt(message.encode()).decode()
+
+def decrypt_message(message: str) -> str:
+    return fernet.decrypt(message.encode()).decode()
+
 
 @socketio.on("edit_message")
 def handle_edit_message(data):
@@ -27,6 +35,8 @@ def handle_edit_message(data):
         # Get fresh database connection
         conn = get_db_connection()
         temp_cursor = conn.cursor()
+
+        encrypt = encrypt_msg(new_content)
         
         # Check if the message exists and user is the sender
         temp_cursor.execute(
@@ -53,7 +63,7 @@ def handle_edit_message(data):
             WHERE message_id = %s
             RETURNING message_id, sender_id, receiver_id, content, is_edited, edited_at
             """,
-            (new_content, edited_at, int(message_id))
+            (encrypt, edited_at, int(message_id))
         )
         
         updated_message = temp_cursor.fetchone()
@@ -71,7 +81,7 @@ def handle_edit_message(data):
                 "message_id": message_dict["message_id"],
                 "sender_id": message_dict["sender_id"],
                 "receiver_id": message_dict["receiver_id"],
-                "content": message_dict["content"],
+                "content": decrypt_message(message_dict["content"]),
                 "is_edited": message_dict["is_edited"],
                 "edited_at": message_dict["edited_at"]
             }, room=room, namespace='/')
