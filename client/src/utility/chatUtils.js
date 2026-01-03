@@ -1,10 +1,10 @@
 export const reactionEmojis = {
-  like: "👍",
-  love: "❤️",
-  haha: "😂",
-  wow: "😮",
-  sad: "😢",
-  angry: "😠",
+  like: "👍", // IG-style like
+  love: "💗", // hype / love
+  haha: "😆", // stronger laugh
+  wow: "🤯", // mind blown
+  sad: "😢", // soft sad
+  angry: "😡", // modern “dead” / annoyed
 };
 
 export const getUserReaction = (message, senderId) => {
