@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from database.db import get_db_connection
 from Utils.rooms import private_room
@@ -207,3 +207,27 @@ def mark_as_seen(sender_id):
         
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+    
+
+@message_bp.route("/user/avatar", methods=["POST"])
+@jwt_required()
+def avatar():
+    uid = get_jwt_identity()
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+
+    avatar_url = request.get_json("avatar_url")
+    if not avatar_url:
+        return {"error": "No avatar_url provided"}, 400
+    
+    
+    cursor.execute(
+        "UPDATE user_table SET profile_picture_url = %s WHERE uid = %s",
+        (avatar_url, uid)
+    )
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+    return {"profile_picture_url": avatar_url}, 200
