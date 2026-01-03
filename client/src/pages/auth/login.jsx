@@ -76,7 +76,7 @@ export default function Login() {
                   value={data.username}
                   onChange={handleChange}
                   required
-                  className="w-full pl-10 pr-3 py-3 text-white text-sm md:text-base bg-black/10 shadow-[inset_0_4px_6px_rgba(0,0,0,0.1)]  border-b-2 border-[var(--secondary)]/40 rounded-xl focus:outline-none  transition placeholder:text-slate-600 "
+                  className="w-full pl-10 pr-3 py-3 text-white text-sm md:text-base bg-black/20 shadow-[inset_0_4px_6px_rgba(0,0,0,0.5)]  border-b-2 border-[var(--secondary)]/40 rounded-xl focus:outline-none  transition placeholder:text-slate-600 "
                   placeholder="john.doe"
                 />
               </div>
@@ -101,7 +101,7 @@ export default function Login() {
                     value={data.password}
                     onChange={handleChange}
                     required
-                    className="w-full pl-10 pr-8 py-3 text-white text-sm md:text-base bg-black/10 shadow-[inset_0_4px_6px_rgba(0,0,0,0.1)] border-b-2 border-[var(--secondary)]/40 rounded-xl  focus:outline-none  transition placeholder:text-slate-600"
+                    className="w-full pl-10 pr-8 py-3 text-white text-sm md:text-base bg-black/20 shadow-[inset_0_4px_6px_rgba(0,0,0,0.5)] border-b-2 border-[var(--secondary)]/40 rounded-xl  focus:outline-none  transition placeholder:text-slate-600"
                     placeholder="********"
                   />
                   <div
@@ -165,7 +165,7 @@ export default function Login() {
 
             <Link
               to="/register"
-              className="w-full text-sm md:text-base flex items-center justify-center gap-2 py-3.5 px-4 border-2 border-white/2 shadow-xl hover:border-white/6 text-white font-medium rounded-lg transition duration-200 focus:outline-none focus:ring-2 focus:ring-white/6 focus:border-transparent group"
+              className="w-full bg-gradient-to-l from-black/10 to-black/20 text-sm md:text-base flex items-center justify-center gap-2 py-3.5 px-4 border-2 border-white/2 shadow-xl shadow-black/30 hover:border-white/6 text-white font-medium rounded-lg transition duration-200 focus:outline-none focus:ring-2 focus:ring-white/6 focus:border-transparent group"
             >
               <FiUser className="w-4 h-4 text-white " />
               <span>Create new account</span>

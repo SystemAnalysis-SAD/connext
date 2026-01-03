@@ -46,8 +46,8 @@ export default function Register() {
             key={option}
             className={`flex items-center gap-2 mt-3 py-1 px-3 rounded-md w-full border-2 cursor-pointer transition-all duration-200 ${
               userData.gender === option
-                ? "bg-[var(--primary)] text-white border-none shadow-xl" // SELECTED
-                : "bg-transparent text-white border-white/2 shadow-xl hover:border-[var(--primary)]/60" // NOT SELECTED
+                ? "bg-[var(--primary)] text-white border-none shadow-[inset_0_4px_6px_rgba(0,0,0,0.6)] " // SELECTED
+                : "bg-transparent text-white border-white/2 shadow-xl shadow-black/30 hover:border-[var(--primary)]/60" // NOT SELECTED
             }`}
           >
             <span className="text-sm">{option}</span>
@@ -102,7 +102,7 @@ export default function Register() {
                   value={userData.first_name}
                   onChange={handleChange}
                   required
-                  className="w-full mt-2 pl-2 pr-3 py-3 text-white text-sm md:text-base border-b-2 border-[var(--secondary)]/40 shadow-[inset_0_4px_6px_rgba(0,0,0,0.1)]  rounded-lg focus:outline-none transition placeholder:text-slate-600"
+                  className="w-full mt-2 pl-2 pr-3 py-3 text-white text-sm md:text-base border-b-2 border-[var(--secondary)]/40 shadow-[inset_0_4px_6px_rgba(0,0,0,0.5)]  rounded-lg focus:outline-none transition placeholder:text-slate-600"
                   placeholder="John"
                 />
               </div>
@@ -120,7 +120,7 @@ export default function Register() {
                   value={userData.last_name}
                   onChange={handleChange}
                   required
-                  className="w-full pl-2 pr-3 mt-2 py-3 text-white text-sm md:text-base border-b-2 border-[var(--secondary)]/40 shadow-[inset_0_4px_6px_rgba(0,0,0,0.1)]  rounded-lg focus:outline-none transition placeholder:text-slate-600"
+                  className="w-full pl-2 pr-3 mt-2 py-3 text-white text-sm md:text-base border-b-2 border-[var(--secondary)]/40 shadow-[inset_0_4px_6px_rgba(0,0,0,0.5)]  rounded-lg focus:outline-none transition placeholder:text-slate-600"
                   placeholder="Doe"
                 />
               </div>
@@ -144,7 +144,7 @@ export default function Register() {
                   value={userData.username}
                   onChange={handleChange}
                   required
-                  className="w-full pl-10 mt-2 pr-3 py-3 text-white text-sm md:text-base border-b-2 border-[var(--secondary)]/40 shadow-[inset_0_4px_6px_rgba(0,0,0,0.1)]  rounded-lg focus:outline-none transition placeholder:text-slate-600"
+                  className="w-full pl-10 mt-2 pr-3 py-3 text-white text-sm md:text-base border-b-2 border-[var(--secondary)]/40 shadow-[inset_0_4px_6px_rgba(0,0,0,0.5)]  rounded-lg focus:outline-none transition placeholder:text-slate-600"
                   placeholder="ex. john_doe"
                 />
               </div>
@@ -170,7 +170,7 @@ export default function Register() {
                   value={userData.password}
                   onChange={handleChange}
                   required
-                  className="w-full mt-2 pl-10 pr-8 py-3 text-white text-sm md:text-base border-b-2 border-[var(--secondary)]/40 shadow-[inset_0_4px_6px_rgba(0,0,0,0.1)]  rounded-lg focus:outline-none transition placeholder:text-slate-600"
+                  className="w-full mt-2 pl-10 pr-8 py-3 text-white text-sm md:text-base border-b-2 border-[var(--secondary)]/40 shadow-[inset_0_4px_6px_rgba(0,0,0,0.5)]  rounded-lg focus:outline-none transition placeholder:text-slate-600"
                   placeholder="********"
                 />
                 <div
@@ -198,7 +198,7 @@ export default function Register() {
                   value={userData.confirm_password}
                   onChange={handleChange}
                   required
-                  className="w-full pl-10 mt-2 pr-8 py-3 text-white text-sm md:text-base   shadow-[inset_0_4px_6px_rgba(0,0,0,0.1)]  rounded-lg border-b-2 border-[var(--secondary)]/40  focus:outline-none transition placeholder:text-slate-600"
+                  className="w-full pl-10 mt-2 pr-8 py-3 text-white text-sm md:text-base   shadow-[inset_0_4px_6px_rgba(0,0,0,0.5)]  rounded-lg border-b-2 border-[var(--secondary)]/40  focus:outline-none transition placeholder:text-slate-600"
                   placeholder="********"
                 />
                 <div
@@ -276,7 +276,7 @@ export default function Register() {
 
             <Link
               to="/login"
-              className="w-full text-sm md:text-base flex items-center justify-center gap-2 py-3.5 px-4 border-2 border-white/2 shadow-xl hover:border-white/6 text-white font-medium rounded-lg transition duration-200 focus:outline-none focus:ring-2 focus:ring-white/6 focus:border-transparent group"
+              className="w-full bg-gradient-to-l from-black/10 to-black/20 text-sm md:text-base flex items-center justify-center gap-2 py-3.5 px-4 border-2 border-white/2 shadow-xl shadow-black/30 hover:border-white/6 text-white font-medium rounded-lg transition duration-200 focus:outline-none focus:ring-2 focus:ring-white/6 focus:border-transparent group"
             >
               <FiArrowRight className="w-4 h-4 text-white rotate-180" />
               <span>Sign in to existing account</span>

@@ -55,7 +55,7 @@ export default function NavMobile() {
 
   return (
     <motion.nav
-      className={`w-fit text-xl z-100 fixed bottom-0 md:hidden m-5 flex bg-black/30 pl-3 pr-4.5 py-2 rounded-full items-center gap-3 shadow-lg backdrop-blur-lg saturate-150 ${
+      className={`w-fit text-xl z-100 fixed shadow-[inset_0_4px_6px_rgba(0,0,0,0.5)] bottom-0 md:hidden m-5 flex bg-black/20 pl-3 pr-4.5 py-2 rounded-full items-center gap-3 backdrop-blur-2xl saturate-150 ${
         view === "chat" ? "hidden" : "block"
       }`}
       variants={navVariants}
@@ -75,7 +75,7 @@ export default function NavMobile() {
         animate="rest"
       >
         <motion.div
-          className="absolute inset-0 rounded-full"
+          className="absolute inset-0 rounded-full "
           variants={backgroundVariants}
           animate={view === "messages" ? "active" : "inactive"}
         />
@@ -119,7 +119,7 @@ export default function NavMobile() {
         animate="rest"
       >
         <motion.div
-          className="absolute inset-0 rounded-full"
+          className="absolute inset-0 rounded-full "
           variants={backgroundVariants}
           animate={view === "profile" ? "active" : "inactive"}
         />

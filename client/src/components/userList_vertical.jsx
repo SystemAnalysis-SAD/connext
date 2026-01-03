@@ -21,7 +21,7 @@ export default function UserListVertical({ onSelectUser }) {
   }, []);
 
   return (
-    <div className="flex items-center ml-3 mb-5 gap-4 w-full overflow-x-auto scrollbar-none">
+    <div className="flex items-center ml-3 mb-5 pr-7 gap-4 w-full overflow-x-auto scrollbar-none">
       {loading
         ? Array.from({ length: 8 }).map((_, i) => (
             <section
@@ -38,9 +38,11 @@ export default function UserListVertical({ onSelectUser }) {
               className="flex flex-col items-center justify-center text-center gap-1 cursor-pointer"
               onClick={() => onSelectUser(u)}
             >
-              <div className="w-16 h-16 rounded-full bg-[var(--black)] border border-white/10 flex items-center justify-center">
-                {u.first_name?.[0]}
-              </div>
+              <img
+                src={u.profile_picture_url}
+                alt="profile"
+                className="w-16 h-16 rounded-full"
+              />
               <p className="text-xs w-16 truncate whitespace-nowrap">
                 {u.first_name}&nbsp;{u.last_name}
               </p>

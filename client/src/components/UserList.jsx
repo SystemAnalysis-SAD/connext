@@ -196,27 +196,26 @@ export default function UserList({
      RENDER
      ========================= */
   return (
-    <div className="h-screen w-full flex flex-col bg-[var(--black)] text-white">
+    <div className="h-screen pb-15  w-full flex flex-col bg-[var(--black)] text-white">
       {/* Search */}
       <div className="px-2 py-4">
         <div className="relative">
-          <FiSearch className="absolute left-3 top-3 text-gray-500" />
+          <FiSearch className="absolute left-3 top-2.5 text-gray-500" />
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search user..."
-            className="w-full text-sm bg-black/10 shadow-[inset_0_4px_6px_rgba(0,0,0,0.1)] rounded-full px-10 py-2 outline-none"
+            className="w-full text-sm bg-black/20 shadow-[inset_0_4px_6px_rgba(0,0,0,0.5)] rounded-full px-10 py-2 outline-none"
           />
         </div>
       </div>
 
       {/* Vertical Users */}
       <UserListVertical onSelectUser={handleSelectUser} />
+      <h1 className="text-sm font-semibold mb-3 ml-3.5">Messages</h1>
 
       {/* Messages */}
-      <div className="flex-1 overflow-auto px-2 md:px-4">
-        <h1 className="text-sm font-semibold mb-3 ml-1.5">Messages</h1>
-
+      <div className="flex-1 scrollbar-none overflow-y-auto px-2 md:px-2 pb-20 ">
         {loadingMessages
           ? Array.from({ length: 6 }).map((_, i) => <MessageSkeleton key={i} />)
           : filteredUsers.map((user) => {
@@ -228,7 +227,7 @@ export default function UserList({
                 <div
                   key={user.uid}
                   onClick={() => handleSelectUser(user)}
-                  className={` mb-2 p-2 border border-white/3 cursor-pointer rounded-xl bg-gradient-to-br from-white/2 to-black/10 shadow-2xl transform transition-all duration-300 hover:scale-102 hover:shadow-3xl active:scale-95 active:shadow-inner focus:scale-95 focus:shadow-inner ${
+                  className={` mb-2 p-2 border border-white/3 cursor-pointer rounded-xl bg-gradient-to-l from-black/10 to-[var(--black)]  shadow-xl transform transition-all duration-300 hover:scale-102 hover:shadow-3xl active:scale-95 active:shadow-inner focus:scale-95 focus:shadow-inner ${
                     selectedUserId === user.uid ? "bg-gray-800" : ""
                   } `}
                 >
