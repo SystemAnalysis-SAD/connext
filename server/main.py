@@ -29,9 +29,10 @@ from Routes.auth import auth_bp
 from Routes.message_routes1 import message_bp
 from Routes.user_routes import user_bp
 #rest
+app.register_blueprint(user_bp)
 app.register_blueprint(auth_bp)
 app.register_blueprint(message_bp)
-app.register_blueprint(user_bp)
+
 
 
 import sockets.connection
