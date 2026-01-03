@@ -234,9 +234,11 @@ export default function UserList({
                 >
                   <div className="flex gap-3">
                     <div className="relative">
-                      <div className="w-12 h-12 rounded-full bg-[var(--primary)] flex items-center justify-center">
-                        {user.first_name?.[0]}
-                      </div>
+                      <img
+                        src={user.profile_picture_url}
+                        alt="profile"
+                        className="w-12 h-12 rounded-full"
+                      />
                       <span
                         className={`absolute bottom-0 right-0 w-3 h-3 rounded-full ${
                           online ? "bg-green-500" : "bg-gray-500"

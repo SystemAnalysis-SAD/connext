@@ -162,7 +162,7 @@ def profile():
         conn = get_db_connection()
         cursor = conn.cursor()
         cursor.execute(
-            "SELECT uid, username, first_name, last_name, bio, email, profile_picture, date_created FROM user_table WHERE uid = %s", 
+            "SELECT uid, username, first_name, last_name, bio, email, profile_picture_url, date_created FROM user_table WHERE uid = %s", 
             (int(current_user_id),)
         )
         user_data = cursor.fetchone()
@@ -191,7 +191,7 @@ def get_users(id):
         conn = get_db_connection()
         cursor = conn.cursor()
         query = """
-        SELECT uid, username, first_name, last_name, gender
+        SELECT uid, username, first_name, last_name, gender, profile_picture_url
         FROM user_table
         WHERE uid != %s
         ORDER BY first_name;
@@ -218,7 +218,7 @@ def get_user_map():
         conn = get_db_connection()
         cursor = conn.cursor()
         query = """
-        SELECT uid, username, first_name, last_name, gender
+        SELECT uid, username, first_name, last_name, gender, profile_picture_url
         FROM user_table
         ORDER BY first_name;
         """

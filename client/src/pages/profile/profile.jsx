@@ -24,10 +24,11 @@ import {
 } from "lucide-react";
 import NavSettings from "../../components/Navbar/Nav_Settings";
 import { useAuth } from "../../context/authContext";
+import AvatarOption from "../../components/Avatar/AvatarOptions";
 
 export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState("posts");
-  const [isFollowing, setIsFollowing] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
   const { user } = useAuth();
 
   const tabs = [
@@ -62,14 +63,26 @@ export default function ProfilePage() {
           {/* Profile Image */}
           <div className="w-full flex justify-center">
             <div className="relative w-full bg-black/20 h-30 rounded-b-xl">
-              <div className="w-17 h-17 rounded-full bg-gradient-to-br from-purple-600 to-pink-500 p-1 absolute bottom-0 translate-y-5 ml-3">
-                <div className="w-15 h-15 rounded-full overflow-hidden bg-black">
-                  <img
-                    src="https://api.dicebear.com/7.x/avataaars/svg?seed=John&background=000000"
-                    alt="Profile"
-                    className="w-15 object-cover"
-                  />
+              <div className="relative w-17 h-17 -bottom-20 pl-4">
+                <div
+                  onClick={() => setIsOpen((prev) => !prev)}
+                  className="w-17 h-17 rounded-full bg-gradient-to-br from-purple-600 to-pink-500 p-1 cursor-pointer"
+                >
+                  <div className="w-15 h-15 rounded-full overflow-hidden bg-black">
+                    <img
+                      src={user.profile_picture_url || "/default-avatar.png"}
+                      alt="Profile"
+                      className="w-15 h-15 object-cover"
+                    />
+                  </div>
                 </div>
+
+                {/* Render dropdown absolutely relative to avatar */}
+                {isOpen && (
+                  <div className="absolute top-full left-0 mt-2 z-50">
+                    <AvatarOption />
+                  </div>
+                )}
               </div>
             </div>
           </div>
