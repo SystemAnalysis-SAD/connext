@@ -28,10 +28,18 @@ def get_messages(other_user_id):
         return jsonify({ "error": "restricted"})
 
     cur.execute("""
-        SELECT * FROM messages
-        WHERE (sender_id=%s AND receiver_id=%s)
-           OR (sender_id=%s AND receiver_id=%s)
-        ORDER BY date_sent ASC
+        SELECT 
+            m.*,
+            r.message_id AS reply_message_id,
+            r.content AS reply_content,
+            r.sender_id AS reply_sender_id
+        FROM messages m
+        LEFT JOIN messages r
+            ON m.reply_to_message_id = r.message_id
+        WHERE (m.sender_id=%s AND m.receiver_id=%s)
+        OR (m.sender_id=%s AND m.receiver_id=%s)
+        ORDER BY m.date_sent ASC
+
     """, (uid, other_user_id, other_user_id, uid))
 
     data = cur.fetchall()
@@ -41,7 +49,12 @@ def get_messages(other_user_id):
     messages = []
     for msg in data:
         msg["content"] = decrypt_message(msg["content"])
+
+        if msg.get("reply_content"):
+            msg["reply_content"] = decrypt_message(msg["reply_content"])
+
         messages.append(msg)
+
 
     return jsonify(messages), 200
 

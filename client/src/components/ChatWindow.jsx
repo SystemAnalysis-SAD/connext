@@ -41,6 +41,8 @@ export default function ChatWindow({ sender_id, receiver, setActiveTab }) {
   const [emojiSheetOffset, setEmojiSheetOffset] = useState(0);
   const startYRef = useRef(0);
   const [page, setPage] = useState(0);
+  const [replyingTo, setReplyingTo] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const handleReactionClick = (message) => {
     setReactionDetails(message);
@@ -102,6 +104,7 @@ export default function ChatWindow({ sender_id, receiver, setActiveTab }) {
     if (!receiver || !sender_id) return;
 
     const fetchAndJoin = async () => {
+      setLoading(true);
       try {
         socket.emit("join_private", {
           user1: sender_id,
@@ -136,6 +139,8 @@ export default function ChatWindow({ sender_id, receiver, setActiveTab }) {
         }
       } catch (err) {
         console.error("Error in fetchAndJoin:", err);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -399,6 +404,7 @@ export default function ChatWindow({ sender_id, receiver, setActiveTab }) {
         sender_id,
         receiver_id: receiver.uid,
         content: text,
+        reply_to_message_id: replyingTo?.message_id || null,
       };
 
       try {
@@ -413,6 +419,7 @@ export default function ChatWindow({ sender_id, receiver, setActiveTab }) {
         }
 
         setText("");
+        setReplyingTo(null);
         if (textareaRef.current) {
           textareaRef.current.style.height = "44px";
         }
@@ -568,18 +575,11 @@ export default function ChatWindow({ sender_id, receiver, setActiveTab }) {
 
   const lastSeenMessage = getLastSeenMessage(messages, sender_id);
 
-  if (!receiver) {
+  if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center h-full bg-[var(--black)]">
-        <div className="w-24 h-24 mb-6 rounded-full bg-gradient-to-r from-blue-900/30 to-purple-900/30 flex items-center justify-center">
-          <div className="w-16 h-16 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 flex items-center justify-center">
-            <Send className="w-8 h-8 text-white" />
-          </div>
-        </div>
-        <h3 className="text-2xl font-semibold text-gray-100 mb-2">
-          Your Messages
-        </h3>
-        <p className="text-gray-400">Select a conversation to start chatting</p>
+      <div className="w-full md:w-[calc(100%-24rem)] h-screen absolute bg-[var(--black)] flex flex-col items-center justify-center">
+        <span className="w-10 h-10 border-b border-blue-500 animate-spin rounded-full"></span>
+        <span className="">connexting...</span>
       </div>
     );
   }
@@ -595,23 +595,23 @@ export default function ChatWindow({ sender_id, receiver, setActiveTab }) {
       />
 
       {/* Chat Messages */}
-      <div className="flex-1 overflow-x-hidden  overflow-y-auto bg-[var(--black)] px-2 py-4">
-        <div className="w-full mx-auto h-auto">
+      <div className="flex overflow-x-hidden w-full overflow-y-auto bg-[var(--black)] px-2 py-4">
+        <div className="  h-auto w-full">
           {/* Messages */}
-          {messages.length === 0 ? (
-            <div className=" flex items-center justfy-center flex-col pt-60 overflow-hidden">
+          {messages.length === 0 && receiver ? (
+            <div className=" flex w-full items-center justfy-center flex-col pt-60 overflow-hidden">
               <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-to-r from-blue-900/30 to-purple-900/30 flex items-center justify-center">
                 <Send className="w-10 h-10 text-blue-400" />
               </div>
               <h3 className="text-xl font-semibold text-gray-200 mb-2">
                 No messages yet
               </h3>
-              <p className="text-gray-500">
+              <p className="text-gray-500 text-center text-sm md:text-base">
                 Send your first message to start the conversation
               </p>
             </div>
           ) : (
-            <div className="space-y-0 pt-20 pb-14">
+            <div className="space-y-0 pt-20 pb-14 w-full">
               {messages.map((msg, index) => {
                 const isSender = msg.sender_id == sender_id;
                 const isLastMessage = index === messages.length - 1;
@@ -646,21 +646,43 @@ export default function ChatWindow({ sender_id, receiver, setActiveTab }) {
                 return (
                   <div
                     key={msg.message_id}
-                    className={`group flex w-full ${
+                    className={`group flex w-full relative ${
                       isSender ? "justify-end" : "justify-start"
                     }`}
                   >
+                    {msg.reply_message_id && (
+                      <div className="mb-1 px-2 py-1 rounded-lg bg-black/30 border-l-2 border-blue-400 text-xs opacity-80">
+                        <span className="font-semibold">
+                          {msg.reply_sender_id === sender_id
+                            ? "You"
+                            : receiver.first_name}
+                        </span>
+                        <p className="truncate">{msg.reply_content}</p>
+                      </div>
+                    )}
+
+                    {msg.reply && (
+                      <div className="mb-1 px-2 py-1 rounded-lg bg-black/30 border-l-2 border-blue-400 text-xs opacity-80">
+                        <span className="font-semibold">
+                          {msg.reply.sender_id === sender_id
+                            ? "You"
+                            : receiver.first_name}
+                        </span>
+                        <p className="truncate">{msg.reply.content}</p>
+                      </div>
+                    )}
+
                     <div
-                      className={`relative  max-w-[70%] md:max-w-[50%] ${
+                      className={` w-fit max-w-[70%] md:max-w-[50%] ${
                         isSender
                           ? "mr-2 items-end justify-end flex flex-col"
                           : "ml-2 flex flex-col"
                       }`}
                     >
                       {/* Message bubble */}
-                      <div className="relative">
+                      <div className=" w-full ">
                         <span
-                          className={`text-xs ${
+                          className={`text-xs  ${
                             isSender ? "text-blue-300" : "text-gray-500"
                           }`}
                         >
@@ -687,7 +709,7 @@ export default function ChatWindow({ sender_id, receiver, setActiveTab }) {
                           )}
 
                           <div
-                            className={`relative w-full  px-4 py-2 flex break-words max-w-[119%]  ${
+                            className={`relative w-full  px-4 py-2 flex break-words ${
                               isSender
                                 ? `bg-gradient-to-r rounded-bl-3xl rounded-r-md rounded-tl-3xl from-blue-600 to-blue-700 relative text-white ${
                                     isFirstBubble
@@ -714,14 +736,14 @@ export default function ChatWindow({ sender_id, receiver, setActiveTab }) {
                             onTouchEnd={handleTouchEnd}
                             onTouchCancel={handleTouchCancel}
                           >
-                            <p className="whitespace-pre-wrap break-words text-wrap">
+                            <p className="whitespace-pre-wrap break-words text-wrap w-full">
                               {msg.content}
                             </p>
                           </div>
                         </div>
 
                         {isTouched ||
-                          (window.innerWidth >= 700 && (
+                          (window.innerWidth > 768 && (
                             <button
                               onClick={(e) => toggleMenu(msg.message_id, e)}
                               className={`absolute top-1/2 -translate-y-1/2 transition-opacity duration-200 ${
@@ -760,6 +782,17 @@ export default function ChatWindow({ sender_id, receiver, setActiveTab }) {
                               className=" flex items-center gap-2 px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 rounded-b-lg transition-colors"
                             >
                               <Heart className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => {
+                                setReplyingTo(msg);
+                                setActiveMenu(null);
+                                setReactionPicker(null);
+                                textareaRef.current?.focus();
+                              }}
+                              className="flex items-center gap-2 px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 rounded-b-lg transition-colors"
+                            >
+                              Reply
                             </button>
                           </div>
                         )}
@@ -876,7 +909,6 @@ export default function ChatWindow({ sender_id, receiver, setActiveTab }) {
                           )}
                         </div>
                       )}
-                      {/* Single check for last message sent but not seen */}{" "}
                       {isSender && isLastMessage && !msg.is_seen && (
                         <Check className="w-3 h-3 text-gray-400" />
                       )}

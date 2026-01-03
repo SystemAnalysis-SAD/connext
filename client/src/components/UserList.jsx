@@ -263,7 +263,7 @@ export default function UserList({
                         )}
                       </div>
 
-                      <p className="text-sm text-gray-400 truncate">
+                      <p className="text-sm text-gray-400 truncate w-40">
                         {typingUserId === String(user.uid)
                           ? "is typing..."
                           : msg

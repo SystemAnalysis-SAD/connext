@@ -35,7 +35,7 @@ export default function Messages() {
       <div
         className={`
           ${view === "messages" ? "block" : "hidden"}
-          md:block w-full md:w-96 md:border-r border-white/10 bg-[var(--black)] overflow-hidden
+          md:block w-full md:max-w-85 md:min-w-85  md:border-r border-white/10 bg-[var(--black)] overflow-hidden
         `}
       >
         <div className="px-4 pt-4 pb-1 flex items-center justify-between ">
