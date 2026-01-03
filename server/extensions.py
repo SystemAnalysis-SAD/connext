@@ -4,7 +4,6 @@ from flask_jwt_extended import JWTManager
 from cryptography.fernet import Fernet
 from Config.Config import Config
 
-from flask_wtf.csrf import CSRFProtect
 
 """ from flask_talisman import Talisman """
 
@@ -14,6 +13,4 @@ socketio = SocketIO(cors_allowed_origins="*",
                 async_mode='eventlet')  
 bcrypt = Bcrypt()
 jwt = JWTManager()
-
-csrf = CSRFProtect()
 """ talisman = Talisman() """

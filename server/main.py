@@ -2,7 +2,7 @@
 
 from flask import Flask
 from flask_cors import CORS
-from extensions import socketio, bcrypt, jwt, csrf
+from extensions import socketio, bcrypt, jwt
 from Config.Config import Config
 #from extensions import talisman
 
@@ -21,7 +21,7 @@ jwt.init_app(app)
 bcrypt.init_app(app)
 socketio.init_app(app)
 #talisman.init_app(app)
-csrf.init_app(app)
+
 
 
 # ---------------- BLUEPRINTS ----------------
