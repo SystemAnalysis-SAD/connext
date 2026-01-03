@@ -93,7 +93,7 @@ export default function MessageInput({
           <div className="flex relative min-w-0 w-full">
             <textarea
               ref={textareaRef}
-              className="w-full backdrop-blur-2xl shadow-[inset_0_4px_6px_rgba(0,0,0,0.2)] overflow-hidden border border-white/3 bg-black/10 rounded-3xl px-4 py-3 pr-15 pl-13 outline-none resize-none text-white placeholder-gray-500"
+              className="w-full backdrop-blur-2xl shadow-[inset_0_4px_6px_rgba(0,0,0,0.5)] overflow-hidden border border-white/3 bg-black/20 rounded-3xl px-4 py-3 pr-15 pl-13 outline-none resize-none text-white placeholder-gray-500"
               value={text}
               onChange={handleTextChange}
               onKeyPress={handleKeyPress}
