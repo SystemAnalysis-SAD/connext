@@ -198,7 +198,7 @@ export default function UserList({
   return (
     <div className="h-screen pb-15  w-full flex flex-col bg-[var(--black)] text-white">
       {/* Search */}
-      <div className="px-2 py-4">
+      <div className="px-3 py-4">
         <div className="relative">
           <FiSearch className="absolute left-3 top-2.5 text-gray-500" />
           <input
@@ -256,7 +256,7 @@ export default function UserList({
                           {user.first_name} {user.last_name}
                         </h3>
                         {msg?.date_sent && (
-                          <span className="text-xs text-gray-400">
+                          <span className="text-[11px] text-gray-400 font-bold">
                             {format(new Date(msg.date_sent), "hh:mm a")}
                           </span>
                         )}

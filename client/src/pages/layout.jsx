@@ -29,8 +29,8 @@ export default function Layout() {
             </div>
           </div>
           <div
-            className={`w-full flex items-center justify-center relative ${
-              view === "chat" ? "z-0" : "z-50"
+            className={`w-full flex items-center justify-center relative  md:h-0 bg-[var(--black)] ${
+              view === "chat" ? "z-0 h-0" : "z-50 h-20"
             }`}
           >
             <NavMobile />

@@ -16,6 +16,7 @@ import MessageInput from "./MessageInput";
 import TypingIndicator from "./TypingIndicator";
 import ChatHeader from "./ChatHeader";
 import { motion, AnimatePresence } from "motion/react";
+import { FiArrowLeft } from "react-icons/fi";
 
 export default function ChatWindow({ sender_id, receiver, setActiveTab }) {
   const [messages, setMessages] = useState([]);
@@ -611,7 +612,7 @@ export default function ChatWindow({ sender_id, receiver, setActiveTab }) {
               </p>
             </div>
           ) : (
-            <div className="space-y-0 pt-20 pb-14 w-full">
+            <div className="space-y-0 pt-20 pb-18 w-full">
               {messages.map((msg, index) => {
                 const isSender = msg.sender_id == sender_id;
                 const isLastMessage = index === messages.length - 1;
@@ -646,31 +647,63 @@ export default function ChatWindow({ sender_id, receiver, setActiveTab }) {
                 return (
                   <div
                     key={msg.message_id}
-                    className={`group flex w-full relative ${
-                      isSender ? "justify-end" : "justify-start"
+                    className={`  flex flex-col w-full relative  ${
+                      isSender ? "items-end " : "justify-start"
                     }`}
                   >
-                    {msg.reply_message_id && (
-                      <div className="mb-1 px-2 py-1 rounded-lg bg-black/30 border-l-2 border-blue-400 text-xs opacity-80">
-                        <span className="font-semibold">
-                          {msg.reply_sender_id === sender_id
-                            ? "You"
-                            : receiver.first_name}
-                        </span>
-                        <p className="truncate">{msg.reply_content}</p>
-                      </div>
-                    )}
+                    <div className="pr-2">
+                      {msg.reply_message_id && (
+                        <div
+                          className={`flex  flex-col ${
+                            isSender
+                              ? "items-end  border-r-2 border-white/20 pr-2 my-1"
+                              : "items-start ml-12  border-l-2 border-white/20 pl-2 my-1"
+                          }`}
+                        >
+                          <span className=" text-[11px] font-extralight">
+                            {msg.sender_id === sender_id
+                              ? "You replied to " +
+                                receiver.first_name +
+                                " " +
+                                receiver.last_name
+                              : receiver.first_name +
+                                " " +
+                                receiver.last_name +
+                                " replied to you"}
+                          </span>
+                          <div className="px-2 py-1 rounded-full bg-white/20  text-xs opacity-80">
+                            <p className="truncate">{msg.reply_content}</p>
+                          </div>
+                        </div>
+                      )}
+                    </div>
 
-                    {msg.reply && (
-                      <div className="mb-1 px-2 py-1 rounded-lg bg-black/30 border-l-2 border-blue-400 text-xs opacity-80">
-                        <span className="font-semibold">
-                          {msg.reply.sender_id === sender_id
-                            ? "You"
-                            : receiver.first_name}
-                        </span>
-                        <p className="truncate">{msg.reply.content}</p>
-                      </div>
-                    )}
+                    <div className="pr-2">
+                      {msg.reply && (
+                        <div
+                          className={`flex  flex-col ${
+                            isSender
+                              ? "items-end  border-r-2 border-white/20 pr-2 my-1"
+                              : "items-start ml-12  border-l-2 border-white/20 pl-2 my-1"
+                          }`}
+                        >
+                          <span className=" text-[11px] font-extralight">
+                            {msg.sender_id === sender_id
+                              ? "You replied to " +
+                                receiver.first_name +
+                                " " +
+                                receiver.last_name
+                              : receiver.first_name +
+                                " " +
+                                receiver.last_name +
+                                " replied to you"}
+                          </span>
+                          <div className="px-2 py-1 rounded-full bg-white/20  text-xs opacity-80">
+                            <p className="truncate">{msg.reply.content}</p>
+                          </div>
+                        </div>
+                      )}
+                    </div>
 
                     <div
                       className={` w-fit max-w-[70%] md:max-w-[50%] ${
@@ -761,9 +794,9 @@ export default function ChatWindow({ sender_id, receiver, setActiveTab }) {
                         {activeMenu === msg.message_id && (
                           <div
                             ref={menuRef}
-                            className={`sticky w-full justify-end bottom-0 z-9  rounded-lg  flex flex-row-reverse ${
+                            className={`absolute w-full justify-end bottom-0  rounded-lg  flex flex-row-reverse ${
                               isSender
-                                ? "left-0 -translate-x-20 -translate-y-9  "
+                                ? " -translate-x-20 -translate-y-4  "
                                 : "right-0 translate-x-30 -translate-y-9"
                             }`}
                           >
@@ -790,9 +823,9 @@ export default function ChatWindow({ sender_id, receiver, setActiveTab }) {
                                 setReactionPicker(null);
                                 textareaRef.current?.focus();
                               }}
-                              className="flex items-center gap-2 px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 rounded-b-lg transition-colors"
+                              className="flex items-center gap-2   text-sm text-gray-300 hover:bg-gray-700 rounded-b-lg transition-colors"
                             >
-                              Reply
+                              <FiArrowLeft />
                             </button>
                           </div>
                         )}
@@ -806,7 +839,7 @@ export default function ChatWindow({ sender_id, receiver, setActiveTab }) {
                               exit={{ opacity: 0 }}
                               transition={{ duration: 0.2, ease: "easeOut" }}
                               ref={reactionPickerRef}
-                              className={`sticky z-10 bg-gray-800 w-fit rounded-full px-2 shadow-xl border border-gray-700 flex items-center ${
+                              className={`absolute z-10 bg-gray-800 w-fit rounded-full px-2 shadow-xl border border-gray-700 flex items-center ${
                                 isSender
                                   ? "-translate-y-20 -bottom-20 right-0 mt-2 md: md:-translate-y-0 md:-top-8"
                                   : " translate-x-0 -top-10"

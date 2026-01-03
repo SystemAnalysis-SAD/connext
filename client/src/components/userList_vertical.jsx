@@ -41,7 +41,7 @@ export default function UserListVertical({ onSelectUser }) {
               <img
                 src={u.profile_picture_url}
                 alt="profile"
-                className="w-16 h-16 rounded-full"
+                className="w-14 h-14 rounded-full"
               />
               <p className="text-xs w-16 truncate whitespace-nowrap">
                 {u.first_name}&nbsp;{u.last_name}
