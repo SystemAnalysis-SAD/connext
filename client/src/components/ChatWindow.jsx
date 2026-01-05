@@ -100,17 +100,25 @@ export default function ChatWindow({ sender_id, receiver, setActiveTab }) {
     };
   }, []);
 
-  // Fetch existing messages
   useEffect(() => {
     if (!receiver || !sender_id) return;
+
+    const joinRoomSafely = () => {
+      socket.emit("join_private", {
+        user1: sender_id,
+        user2: receiver.uid,
+      });
+    };
 
     const fetchAndJoin = async () => {
       setLoading(true);
       try {
-        socket.emit("join_private", {
-          user1: sender_id,
-          user2: receiver.uid,
-        });
+        // ✅ WAIT for socket connection
+        if (!socket.connected) {
+          socket.once("connect", joinRoomSafely);
+        } else {
+          joinRoomSafely();
+        }
 
         const res = await api.get(`${API_URL}/messages/${receiver.uid}`, {
           withCredentials: true,
@@ -130,12 +138,11 @@ export default function ChatWindow({ sender_id, receiver, setActiveTab }) {
           });
 
           setMessages((prev) =>
-            prev.map((msg) => {
-              if (msg.sender_id == receiver.uid && !msg.is_seen) {
-                return { ...msg, is_seen: true };
-              }
-              return msg;
-            })
+            prev.map((msg) =>
+              msg.sender_id == receiver.uid && !msg.is_seen
+                ? { ...msg, is_seen: true }
+                : msg
+            )
           );
         }
       } catch (err) {
@@ -148,12 +155,11 @@ export default function ChatWindow({ sender_id, receiver, setActiveTab }) {
     fetchAndJoin();
 
     return () => {
-      if (receiver && socket.connected) {
-        socket.emit("leave_private", {
-          user1: sender_id,
-          user2: receiver.uid,
-        });
-      }
+      // ✅ DO NOT depend on socket.connected
+      socket.emit("leave_private", {
+        user1: sender_id,
+        user2: receiver.uid,
+      });
     };
   }, [receiver, sender_id]);
 
@@ -254,26 +260,29 @@ export default function ChatWindow({ sender_id, receiver, setActiveTab }) {
 
   // Typing indicators
   useEffect(() => {
-    const handleTypingStart = (data) => {
-      if (data.sender_id == receiver?.uid) {
-        setIsTyping(true);
-        if (typingTimeoutRef.current) {
-          clearTimeout(typingTimeoutRef.current);
-        }
-        typingTimeoutRef.current = setTimeout(() => {
-          setIsTyping(false);
-        }, 1000);
+    const handleTyping = () => {
+      if (!receiver || !socket.connected) return;
+
+      if (!typingTimeoutRef.current) {
+        socket.emit("typing_start", {
+          sender_id,
+          receiver_id: receiver.uid,
+        });
       }
+
+      clearTimeout(typingTimeoutRef.current);
+
+      typingTimeoutRef.current = setTimeout(() => {
+        socket.emit("typing_stop", {
+          sender_id,
+          receiver_id: receiver.uid,
+        });
+        typingTimeoutRef.current = null;
+      }, 1500);
     };
 
-    const handleTypingStop = (data) => {
-      if (data.sender_id == receiver?.uid) {
-        setIsTyping(false);
-      }
-    };
-
-    socket.on("typing_start", handleTypingStart);
-    socket.on("typing_stop", handleTypingStop);
+    socket.on("typing_start", handleTyping);
+    socket.on("typing_stop", handleTyping);
 
     return () => {
       socket.off("typing_start", handleTypingStart);
@@ -379,7 +388,11 @@ export default function ChatWindow({ sender_id, receiver, setActiveTab }) {
   // Send message or update existing message
   const sendMessage = async () => {
     if (editingMessage) {
-      if (!text.trim() || !receiver || socketStatus !== "connected") return;
+      if (!text.trim() || !receiver) return;
+      if (!socket.connected) {
+        console.warn("Socket not connected yet");
+        return;
+      }
 
       const editPayload = {
         message_id: editingMessage.message_id,
