@@ -227,7 +227,7 @@ export default function UserList({
                 <div
                   key={user.uid}
                   onClick={() => handleSelectUser(user)}
-                  className={` mb-2 p-2 border border-white/3 cursor-pointer rounded-xl bg-gradient-to-l from-black/10 to-[var(--black)]  shadow-xl transform transition-all duration-300 hover:scale-102 hover:shadow-3xl active:scale-95 active:shadow-inner focus:scale-95 focus:shadow-inner ${
+                  className={` mb-2 min-w-60 p-2 border border-white/3 cursor-pointer rounded-xl bg-gradient-to-l from-black/10 to-[var(--black)]  shadow-xl transform transition-all duration-300 hover:scale-102 hover:shadow-3xl active:scale-95 active:shadow-inner focus:scale-95 focus:shadow-inner ${
                     selectedUserId === user.uid ? "bg-gray-800" : ""
                   } `}
                 >

@@ -285,8 +285,8 @@ export default function ChatWindow({ sender_id, receiver, setActiveTab }) {
     socket.on("typing_stop", handleTyping);
 
     return () => {
-      socket.off("typing_start", handleTypingStart);
-      socket.off("typing_stop", handleTypingStop);
+      socket.off("typing_start", handleTyping);
+      socket.off("typing_stop", handleTyping);
       if (typingTimeoutRef.current) {
         clearTimeout(typingTimeoutRef.current);
       }
