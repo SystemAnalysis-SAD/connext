@@ -4,7 +4,7 @@ export const reactionEmojis = {
   haha: "😆", // stronger laugh
   wow: "🤯", // mind blown
   sad: "😢", // soft sad
-  angry: "😡", // modern “dead” / annoyed
+  angry: "💢", // modern “dead” / annoyed
 };
 
 export const getUserReaction = (message, senderId) => {
