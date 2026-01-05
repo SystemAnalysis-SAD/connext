@@ -888,7 +888,7 @@ export default function ChatWindow({ sender_id, receiver, setActiveTab }) {
                         {totalReactions > 0 && (
                           <div
                             onClick={() => handleReactionClick(msg)}
-                            className={`-translate-y-2.5 bg-gray-600 cursor-pointer items-center py-0 rounded-full border-[var(--black)] border-2 text-[13px] pb-0.5 px-1 z-9 ${
+                            className={`-translate-y-2.5 bg-gray-600 cursor-pointer items-center py-0 rounded-full border-[var(--black)] border-2 text-[13px] pb-0.5 px-1 z-0 ${
                               isSender ? "order-2" : "order-1"
                             }`}
                           >
