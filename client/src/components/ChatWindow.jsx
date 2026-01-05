@@ -674,15 +674,17 @@ export default function ChatWindow({ sender_id, receiver, setActiveTab }) {
                           }`}
                         >
                           <span className=" text-[11px] font-extralight">
-                            {msg.sender_id === sender_id
-                              ? "You replied to " +
-                                receiver.first_name +
-                                " " +
-                                receiver.last_name
-                              : receiver.first_name +
-                                " " +
-                                receiver.last_name +
-                                " replied to you"}
+                            {msg && (
+                              <span>
+                                {msg.sender_id === sender_id
+                                  ? msg.reply_sender_id === sender_id
+                                    ? "You replied to yourself"
+                                    : `You replied to ${receiver.first_name} ${receiver.last_name}`
+                                  : msg.reply_sender_id === msg.sender_id
+                                  ? `${receiver.first_name} ${receiver.last_name} replied to himself`
+                                  : `${receiver.first_name} ${receiver.last_name} replied to you`}
+                              </span>
+                            )}
                           </span>
                           <div className="px-2 py-1 rounded-full bg-white/20  text-xs opacity-80">
                             <p className="truncate">{msg.reply_content}</p>
@@ -701,15 +703,17 @@ export default function ChatWindow({ sender_id, receiver, setActiveTab }) {
                           }`}
                         >
                           <span className=" text-[11px] font-extralight">
-                            {msg.sender_id === sender_id
-                              ? "You replied to " +
-                                receiver.first_name +
-                                " " +
-                                receiver.last_name
-                              : receiver.first_name +
-                                " " +
-                                receiver.last_name +
-                                " replied to you"}
+                            {msg.reply && (
+                              <span>
+                                {msg.sender_id === sender_id
+                                  ? msg.reply_sender_id === sender_id
+                                    ? "You replied to yourself"
+                                    : `You replied to ${receiver.first_name} ${receiver.last_name}`
+                                  : msg.reply_sender_id === msg.sender_id
+                                  ? `${receiver.first_name} ${receiver.last_name} replied to himself`
+                                  : `${receiver.first_name} ${receiver.last_name} replied to you`}
+                              </span>
+                            )}
                           </span>
                           <div className="px-2 py-1 rounded-full bg-white/20  text-xs opacity-80">
                             <p className="truncate">{msg.reply.content}</p>
@@ -949,14 +953,15 @@ export default function ChatWindow({ sender_id, receiver, setActiveTab }) {
                       </div>
                       {isSender && isLastMessage && msg.is_seen && (
                         <div className="flex items-center gap-1">
-                          <CheckCheck className="w-3 h-3 text-blue-400" />{" "}
                           {isLastSeenMessage && (
                             <span className="text-xs text-blue-400">Seen</span>
                           )}
                         </div>
                       )}
                       {isSender && isLastMessage && !msg.is_seen && (
-                        <Check className="w-3 h-3 text-gray-400" />
+                        <section className="flex items-center gap-1">
+                          <span className="text-xs text-gray-400">sent</span>{" "}
+                        </section>
                       )}
                     </div>
                   </div>
