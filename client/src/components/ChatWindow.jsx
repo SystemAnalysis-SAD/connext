@@ -260,33 +260,27 @@ export default function ChatWindow({ sender_id, receiver, setActiveTab }) {
 
   // Typing indicators
   useEffect(() => {
-    const handleTyping = () => {
-      if (!receiver || !socket.connected) return;
-
-      if (!typingTimeoutRef.current) {
-        socket.emit("typing_start", {
-          sender_id,
-          receiver_id: receiver.uid,
-        });
+    const handleTypingStart = (data) => {
+      if (data.sender_id == receiver?.uid) {
+        setIsTyping(true);
+        if (typingTimeoutRef.current) {
+          clearTimeout(typingTimeoutRef.current);
+        }
+        typingTimeoutRef.current = setTimeout(() => {
+          setIsTyping(false);
+        }, 1000);
       }
-
-      clearTimeout(typingTimeoutRef.current);
-
-      typingTimeoutRef.current = setTimeout(() => {
-        socket.emit("typing_stop", {
-          sender_id,
-          receiver_id: receiver.uid,
-        });
-        typingTimeoutRef.current = null;
-      }, 1500);
     };
-
-    socket.on("typing_start", handleTyping);
-    socket.on("typing_stop", handleTyping);
-
+    const handleTypingStop = (data) => {
+      if (data.sender_id == receiver?.uid) {
+        setIsTyping(false);
+      }
+    };
+    socket.on("typing_start", handleTypingStart);
+    socket.on("typing_stop", handleTypingStop);
     return () => {
-      socket.off("typing_start", handleTyping);
-      socket.off("typing_stop", handleTyping);
+      socket.off("typing_start", handleTypingStart);
+      socket.off("typing_stop", handleTypingStop);
       if (typingTimeoutRef.current) {
         clearTimeout(typingTimeoutRef.current);
       }

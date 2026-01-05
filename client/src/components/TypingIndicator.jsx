@@ -2,8 +2,8 @@ import React from "react";
 
 export default function TypingIndicator({ receiver }) {
   return (
-    <div className="flex justify-start mb-4">
-      <div className="relative pr-2 bottom-0 mt-auto">
+    <div className="flex justify-start pl-2 bottom-20 sticky z-10 ">
+      <div className=" pr-2 bottom-20   sticky mt-auto">
         <div className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 flex items-center justify-center text-white font-semibold">
           {receiver.first_name.charAt(0).toUpperCase()}
         </div>
