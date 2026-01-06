@@ -667,6 +667,10 @@ export default function ChatWindow({
 
       {/* Message Input */}
       <MessageInput
+        receiver={receiver}
+        sender_id={sender_id}
+        setReplyingTo={setReplyingTo}
+        replyingTo={replyingTo}
         editingMessage={editingMessage}
         cancelEdit={cancelEdit}
         showEmojiPicker={showEmojiPicker}

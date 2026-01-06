@@ -3,6 +3,10 @@ import { ArrowUpRight, Send, Smile, Edit2, X, Plus } from "lucide-react";
 import EmojiPicker from "emoji-picker-react";
 
 function MessageInputComponent({
+  receiver,
+  sender_id,
+  replyingTo,
+  setReplyingTo,
   editingMessage,
   cancelEdit,
   showEmojiPicker,
@@ -28,6 +32,32 @@ function MessageInputComponent({
   return (
     <div className="fixed w-full md:w-[calc(100%-26rem)] bottom-0 bg-[var(--black)] p-2">
       <div className="w-full mx-auto ">
+        {replyingTo && (
+          <div className="mb-2 px-3 py-2 rounded-xl bg-black/40 border-l-4 border-blue-500 flex justify-between items-center">
+            <div className="overflow-hidden">
+              <p className="text-xs text-blue-400 ">
+                Replying to{" "}
+                {replyingTo.sender_id === sender_id ? (
+                  "yourself"
+                ) : (
+                  <span className="font-bold">
+                    {receiver.first_name}&nbsp; {receiver.last_name}
+                  </span>
+                )}
+              </p>
+              <p className="text-sm text-gray-300 truncate max-w-[90%]">
+                {replyingTo.content}
+              </p>
+            </div>
+
+            <button
+              onClick={() => setReplyingTo(null)}
+              className="ml-2 text-gray-400 hover:text-gray-200"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        )}
         {editingMessage && (
           <div className="mb-2 text-sm text-yellow-400 flex items-center gap-2">
             <Edit2 className="w-4 h-4" />
@@ -136,11 +166,12 @@ function MessageInputComponent({
   );
 }
 
-export default React.memo(MessageInputComponent, (prevProps, nextProps) => {
+export default React.memo(MessageInputComponent, (prev, next) => {
   return (
-    prevProps.editingMessage === nextProps.editingMessage &&
-    prevProps.showEmojiPicker === nextProps.showEmojiPicker &&
-    prevProps.text === nextProps.text &&
-    prevProps.emojiSheetOffset === nextProps.emojiSheetOffset
+    prev.text === next.text &&
+    prev.editingMessage === next.editingMessage &&
+    prev.replyingTo === next.replyingTo &&
+    prev.showEmojiPicker === next.showEmojiPicker &&
+    prev.emojiSheetOffset === next.emojiSheetOffset
   );
 });

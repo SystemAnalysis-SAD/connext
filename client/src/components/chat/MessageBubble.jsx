@@ -1,7 +1,14 @@
 // MessageBubble.jsx
 import { useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Edit2, Heart, MoreHorizontal, Reply, X } from "lucide-react";
+import {
+  Edit2,
+  Heart,
+  MoreHorizontal,
+  Reply,
+  SmilePlus,
+  X,
+} from "lucide-react";
 import { FiArrowLeft } from "react-icons/fi";
 import { reactionEmojis, getMessageReactions } from "../../utility/chatUtils";
 import isMobile from "../../utility/IsMobile";
@@ -212,23 +219,17 @@ export default function MessageBubble({
                 {activeMenu === msg.message_id && (
                   <div
                     ref={menuRef}
-                    className={`relative flex items-center justify-center gap-4 w-fit ${
-                      isSender ? "-left-2 flex-row-reverse" : "-right-2 "
+                    className={`relative flex items-center justify-center w-fit ${
+                      isSender
+                        ? "-left-2 flex-row-reverse gap-3"
+                        : "-right-2  gap-2 "
                     }   `}
                   >
-                    {isSender && (
-                      <button
-                        onClick={() => handleEditMessage(msg)}
-                        className="flex items-center text-sm text-gray-300 hover:bg-gray-700 rounded-t-lg transition-colors w-full"
-                      >
-                        <Edit2 className="w-4 h-4" />
-                      </button>
-                    )}
                     <button
                       onClick={() => openReactionPicker(msg.message_id)}
                       className="flex items-center text-sm text-gray-300 hover:bg-gray-700 transition-colors w-full"
                     >
-                      <Heart className="w-4 h-4" />
+                      <SmilePlus className="w-4 h-4" />
                     </button>
                     <button
                       onClick={() => {
@@ -241,6 +242,15 @@ export default function MessageBubble({
                     >
                       <Reply className="w-4 h-4" />
                     </button>
+
+                    {isSender && (
+                      <button
+                        onClick={() => handleEditMessage(msg)}
+                        className="flex items-center text-sm text-gray-300 hover:bg-gray-700 rounded-t-lg transition-colors w-full"
+                      >
+                        <Edit2 className="w-4 h-4" />
+                      </button>
+                    )}
                   </div>
                 )}
               </div>
