@@ -98,10 +98,8 @@ export default function MessageBubble({
                   </span>
                 )}
               </span>
-              <div className="px-2 py-1 max-w-[70%] h-100 w-fit rounded-full bg-white/20 text-xs opacity-80 ">
-                <p className="truncate wrap-break-word min-w-0 w-16">
-                  {msg.reply_content}
-                </p>
+              <div className="px-2 py-1 min-h-fit max-h-21 min-w-0 max-w-[70%] overflow-hidden rounded-2xl bg-white/20 text-xs opacity-80">
+                <p className="line-clamp-4">{msg.reply_content}</p>
               </div>
             </div>
           )}
@@ -129,7 +127,7 @@ export default function MessageBubble({
                   </span>
                 )}
               </span>
-              <div className="px-2 py-1 h-20 min-w-0 max-w-[70%] overflow-hidden rounded-2xl bg-white/20 text-xs opacity-80">
+              <div className="px-2 py-1 min-h-fit max-h-21 min-w-0 max-w-[70%] overflow-hidden rounded-2xl bg-white/20 text-xs opacity-80">
                 <p className="line-clamp-4">{msg.reply.content}</p>
               </div>
             </div>
