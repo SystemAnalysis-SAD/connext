@@ -1,5 +1,5 @@
-import NavMobile from "../components/Navbar/Nav_mobile";
-import SideBar from "../components/Navbar/SideBar";
+import NavMobile from "../components/Navigation/Nav_mobile";
+import SideBar from "../components/Navigation/SideBar";
 import { useViewContext } from "../context/viewContext";
 import Messages from "./messages";
 import ProfilePage from "./profile/profile";

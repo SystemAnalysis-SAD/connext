@@ -22,7 +22,7 @@ import {
   Plus,
   CheckCircle,
 } from "lucide-react";
-import NavSettings from "../../components/Navbar/Nav_Settings";
+import NavSettings from "../../components/Navigation/Nav_Settings";
 import { useAuth } from "../../context/authContext";
 import AvatarOption from "../../components/Avatar/AvatarOptions";
 

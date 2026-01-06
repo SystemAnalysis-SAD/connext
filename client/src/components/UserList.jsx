@@ -209,6 +209,21 @@ export default function UserList({
       u.username?.toLowerCase().includes(search.toLowerCase())
   );
 
+  const sortedUsers = [...filteredUsers].sort((a, b) => {
+    const aMsg = latestMessages[a.uid]?.date_sent;
+    const bMsg = latestMessages[b.uid]?.date_sent;
+
+    // If both have no messages, keep order
+    if (!aMsg && !bMsg) return 0;
+
+    // Users with messages come first
+    if (!aMsg) return 1;
+    if (!bMsg) return -1;
+
+    // Newest message on top
+    return new Date(bMsg) - new Date(aMsg);
+  });
+
   /* =========================
      SKELETON COMPONENT
      ========================= */
@@ -250,7 +265,7 @@ export default function UserList({
       <div className="flex-1 scrollbar-none overflow-y-auto px-2 md:px-2 pb-20 ">
         {loadingMessages
           ? Array.from({ length: 6 }).map((_, i) => <MessageSkeleton key={i} />)
-          : filteredUsers.map((user) => {
+          : sortedUsers.map((user) => {
               const msg = latestMessages[user.uid];
               const unread = unreadCounts[user.uid] || 0;
               const online = onlineUsers.has(String(user.uid));
