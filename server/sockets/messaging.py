@@ -102,16 +102,26 @@ def handle_send_message(data):
         emit("new_message", message_dict, room=room)
 
         emit(
+        "user_list_update",
+        {
+            "type": "new_message",
+            "sender_id": sender_id,
+            "receiver_id": receiver_id,
+            "message": message_dict,
+        },
+        room=f"user_{receiver_id}"
+        )
+        emit(
             "user_list_update",
             {
                 "type": "new_message",
                 "sender_id": sender_id,
                 "receiver_id": receiver_id,
-                "message": message_dict
+                "message": message_dict,
             },
-            broadcast=True,
-            namespace='/'
+            room=f"user_{sender_id}"
         )
+
 
     except Exception as e:
         import traceback

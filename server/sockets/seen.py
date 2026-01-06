@@ -66,3 +66,47 @@ def handle_mark_as_seen(data):
         print(f"❌ Error marking messages as seen via socket: {e}")
         import traceback
         traceback.print_exc()
+
+
+@socketio.on("mark_message_seen")
+def mark_message_seen(data):
+    message_id = data.get("message_id")
+    viewer_id = data.get("viewer_id")
+
+    if not message_id or not viewer_id:
+        return
+
+    conn = get_db_connection()
+    cur = conn.cursor()
+
+    cur.execute(
+        """
+        UPDATE messages
+        SET is_seen = TRUE
+        WHERE message_id = %s AND receiver_id = %s
+        RETURNING message_id, sender_id, receiver_id
+        """,
+        (message_id, viewer_id)
+    )
+
+    msg = cur.fetchone()
+    conn.commit()
+    cur.close()
+    conn.close()
+
+    if not msg:
+        return
+
+    room = private_room(msg["sender_id"], msg["receiver_id"])
+
+    # ✅ FULL PAYLOAD
+    emit(
+        "message_seen_update",
+        {
+            "message_id": msg["message_id"],
+            "sender_id": msg["sender_id"],
+            "receiver_id": msg["receiver_id"],
+            "is_seen": True,
+        },
+        room=room
+    )

@@ -91,6 +91,18 @@
   }
 }
 
+.wrap-break-word {
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  word-break: break-word;
+  hyphens: auto;
+}
+
+/* Ensure the container doesn't constrain content */
+.min-w-0 {
+  min-width: 0;
+}
+
 /* hide scrollbar for all browsers */
 .scrollbar-none {
   -ms-overflow-style: none; /* IE and Edge */

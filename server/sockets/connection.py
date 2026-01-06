@@ -5,6 +5,7 @@ from extensions import socketio
 from services.online_users import online_manager
 from datetime import datetime, timedelta
 from Models.get_db_connection import get_db_connection
+from flask_socketio import join_room
 import threading
 import time
 
@@ -16,6 +17,10 @@ def handle_connect():
     try:
         verify_jwt_in_request()  
         user_id = get_jwt_identity()
+
+        if user_id:
+            join_room(f"user_{user_id}")
+            print(f"User {user_id} joined room user_{user_id}")
 
         # Store user_id in this request
         request.environ["user_id"] = user_id

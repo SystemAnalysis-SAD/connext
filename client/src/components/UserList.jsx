@@ -101,6 +101,38 @@ export default function UserList({
     }
   }, [currentUserId]);
 
+  useEffect(() => {
+    if (!currentUserId) return;
+
+    const handleUserListUpdate = (data) => {
+      if (data.type !== "new_message") return;
+
+      const msg = data.message;
+      const otherUserId =
+        String(msg.sender_id) === String(currentUserId)
+          ? String(msg.receiver_id)
+          : String(msg.sender_id);
+
+      setLatestMessages((prev) => ({
+        ...prev,
+        [otherUserId]: msg,
+      }));
+
+      if (String(msg.sender_id) !== String(currentUserId) && !msg.is_seen) {
+        setUnreadCounts((prev) => ({
+          ...prev,
+          [otherUserId]: (prev[otherUserId] || 0) + 1,
+        }));
+      }
+    };
+
+    socket.on("user_list_update", handleUserListUpdate);
+
+    return () => {
+      socket.off("user_list_update", handleUserListUpdate);
+    };
+  }, [currentUserId]);
+
   /* =========================
      SOCKET EVENTS
      ========================= */

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { ArrowUpRight, Send, Smile, Edit2, X, Plus } from "lucide-react";
 import EmojiPicker from "emoji-picker-react";
 
-export default function MessageInput({
+function MessageInputComponent({
   editingMessage,
   cancelEdit,
   showEmojiPicker,
@@ -21,14 +21,12 @@ export default function MessageInput({
 
   useEffect(() => {
     const handleResize = () => setWidth(window.innerWidth);
-
-    handleResize();
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   return (
-    <div className="fixed w-full  md:w-[calc(100%-26rem)] bottom-0 bg-[var(--black)] p-2">
+    <div className="fixed w-full md:w-[calc(100%-26rem)] bottom-0 bg-[var(--black)] p-2">
       <div className="w-full mx-auto ">
         {editingMessage && (
           <div className="mb-2 text-sm text-yellow-400 flex items-center gap-2">
@@ -42,16 +40,17 @@ export default function MessageInput({
             </button>
           </div>
         )}
-        <div className="flex items-end gap-2 z-50 ">
+
+        <div className="flex items-end gap-2 z-50">
           {showEmojiPicker && (
             <div
               className={`fixed w-full md:w-fit z-50 items-center rounded-t-2xl shadow-xl  ${
-                window.innerWidth < 768
-                  ? "inset-x-0 -bottom-0   flex-col transition-transform duration-300 h-fit block md:hidden"
+                width < 768
+                  ? "inset-x-0 -bottom-0 flex-col transition-transform duration-300 h-fit block md:hidden"
                   : "bottom-20 right-0 md:left-100 w-80 h-96 hidden md:block"
               }`}
               style={
-                window.innerWidth < 768
+                width < 768
                   ? {
                       transform: `translateY(${emojiSheetOffset}px)`,
                       touchAction: "none",
@@ -59,31 +58,26 @@ export default function MessageInput({
                   : {}
               }
               onTouchStart={
-                window.innerWidth < 768 ? handleTouchStartEmojiSheet : undefined
+                width < 768 ? handleTouchStartEmojiSheet : undefined
               }
-              onTouchMove={
-                window.innerWidth < 768 ? handleTouchMoveEmojiSheet : undefined
-              }
-              onTouchEnd={
-                window.innerWidth < 768 ? handleTouchEndEmojiSheet : undefined
-              }
+              onTouchMove={width < 768 ? handleTouchMoveEmojiSheet : undefined}
+              onTouchEnd={width < 768 ? handleTouchEndEmojiSheet : undefined}
             >
-              {window.innerWidth < 768 && (
-                <div className=" flex items-center justify-center">
-                  <span className="w-15 h-1.5 bg-gray-600 rounded-full mt-2 mb-2  "></span>
+              {width < 768 && (
+                <div className="flex items-center justify-center">
+                  <span className="w-15 h-1.5 bg-gray-600 rounded-full mt-2 mb-2"></span>
                 </div>
               )}
               <EmojiPicker
-                className="fixed z-100 w-full md:hidden block  md:w-80"
+                className="fixed z-100 w-full md:hidden block md:w-80"
                 onEmojiClick={(emojiData) => {
                   textareaRef.current.value += emojiData.emoji;
                   textareaRef.current.focus();
                 }}
                 theme="dark"
-                height={window.innerWidth < 768 ? 400 : 400}
+                height={400}
                 width="full"
               />
-
               <button className="absolute top-2 right-4 p-2 rounded-full hover:bg-gray-800">
                 <X className="w-5 h-5 text-gray-300" />
               </button>
@@ -105,7 +99,7 @@ export default function MessageInput({
                 lineHeight: "1.5",
               }}
             />
-            <div className="">
+            <div>
               {width > 768 ? (
                 <button
                   onClick={() => setShowEmojiPicker(!showEmojiPicker)}
@@ -141,3 +135,12 @@ export default function MessageInput({
     </div>
   );
 }
+
+export default React.memo(MessageInputComponent, (prevProps, nextProps) => {
+  return (
+    prevProps.editingMessage === nextProps.editingMessage &&
+    prevProps.showEmojiPicker === nextProps.showEmojiPicker &&
+    prevProps.text === nextProps.text &&
+    prevProps.emojiSheetOffset === nextProps.emojiSheetOffset
+  );
+});

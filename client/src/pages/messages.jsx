@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import UserList from "../components/UserList";
-import ChatWindow from "../components/ChatWindow";
+import ChatWindow from "../components/chat/ChatWindow";
 import { FiMessageSquare, FiUsers } from "react-icons/fi";
 import { useAuth } from "../context/authContext";
 import { useViewContext } from "../context/viewContext";
@@ -68,6 +68,7 @@ export default function Messages() {
           <ChatWindow
             sender_id={user?.uid}
             receiver={activeUser}
+            activeTab={view}
             setActiveTab={handleBackToUsers}
           />
         ) : (
