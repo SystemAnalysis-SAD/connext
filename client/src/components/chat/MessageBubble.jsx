@@ -1,5 +1,5 @@
 // MessageBubble.jsx
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect, useMemo } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   Edit2,
@@ -8,11 +8,11 @@ import {
   Reply,
   SmilePlus,
   X,
+  Trash2,
 } from "lucide-react";
 import { FiArrowLeft } from "react-icons/fi";
 import { reactionEmojis, getMessageReactions } from "../../utility/chatUtils";
 import isMobile from "../../utility/IsMobile";
-import { useMemo } from "react";
 
 export default function MessageBubble({
   msg,
@@ -30,9 +30,9 @@ export default function MessageBubble({
   reactionPickerRef,
   handleEditMessage,
   handleMessageBubbleClick,
-  handleTouchStart,
-  handleTouchEnd,
-  handleTouchCancel,
+  handleTouchStart: propHandleTouchStart,
+  handleTouchEnd: propHandleTouchEnd,
+  handleTouchCancel: propHandleTouchCancel,
   toggleMenu,
   openReactionPicker,
   addReaction,
@@ -41,7 +41,17 @@ export default function MessageBubble({
   setActiveMenu,
   setReactionDetails,
   setReactionPicker,
+  handleDeleteMessage, // Add this prop if you have delete functionality
 }) {
+  const bubbleRef = useRef(null);
+  const [isLongPress, setIsLongPress] = useState(false);
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const [touchStartX, setTouchStartX] = useState(0);
+  const [touchStartY, setTouchStartY] = useState(0);
+  const [touchEndX, setTouchEndX] = useState(0);
+  const [swipeOffset, setSwipeOffset] = useState(0);
+  const [isSwiping, setIsSwiping] = useState(false);
+
   const isSender = msg.sender_id == sender_id;
   const isLastMessage = index === messages.length - 1;
   const isLastSeenMessage =
@@ -68,14 +78,243 @@ export default function MessageBubble({
 
   const isTouched = touchedMessage === msg.message_id;
 
+  // Long press timer
+  const longPressTimer = useRef(null);
+
+  // Handle touch start for both swipe and long press
+  const handleTouchStart = (e) => {
+    if (!isMobile()) {
+      if (propHandleTouchStart) propHandleTouchStart(msg.message_id);
+      return;
+    }
+
+    const touch = e.touches[0];
+    setTouchStartX(touch.clientX);
+    setTouchStartY(touch.clientY);
+    setTouchEndX(touch.clientX);
+    setIsSwiping(true);
+    setSwipeOffset(0);
+
+    // Start long press timer
+    longPressTimer.current = setTimeout(() => {
+      setIsLongPress(true);
+      setShowMobileMenu(true);
+      handleTouchCancel(e); // Reset swipe
+    }, 500); // 500ms for long press
+  };
+
+  // Handle touch move for swipe
+  const handleTouchMove = (e) => {
+    if (!isMobile() || isLongPress) return;
+
+    const touch = e.touches[0];
+    setTouchEndX(touch.clientX);
+
+    // Calculate swipe offset
+    const offset = isSender
+      ? Math.min(0, touch.clientX - touchStartX) // Swipe left for sender
+      : Math.max(0, touch.clientX - touchStartX); // Swipe right for receiver
+
+    setSwipeOffset(offset);
+
+    // If user starts swiping, cancel long press
+    if (Math.abs(offset) > 10 && longPressTimer.current) {
+      clearTimeout(longPressTimer.current);
+    }
+  };
+
+  // Handle touch end
+  const handleTouchEnd = (e) => {
+    if (!isMobile()) {
+      if (propHandleTouchEnd) propHandleTouchEnd();
+      return;
+    }
+
+    // Clear long press timer
+    if (longPressTimer.current) {
+      clearTimeout(longPressTimer.current);
+    }
+
+    setIsSwiping(false);
+
+    // Check if it's a swipe (not a long press)
+    if (!isLongPress && e.changedTouches && e.changedTouches[0]) {
+      const touch = e.changedTouches[0];
+      const swipeDistance = touch.clientX - touchStartX;
+      const verticalDistance = Math.abs(touch.clientY - touchStartY);
+
+      // Only trigger swipe if horizontal movement > 50px and vertical movement < 30px
+      if (Math.abs(swipeDistance) > 50 && verticalDistance < 30) {
+        // Swipe left on sender message or swipe right on receiver message triggers reply
+        if (
+          (isSender && swipeDistance < -50) ||
+          (!isSender && swipeDistance > 50)
+        ) {
+          setReplyingTo(msg);
+          textareaRef.current?.focus();
+        }
+      }
+
+      // Reset swipe after animation
+      setTimeout(() => setSwipeOffset(0), 200);
+    }
+
+    // Reset long press state
+    setIsLongPress(false);
+  };
+
+  // Handle touch cancel
+  const handleTouchCancel = (e) => {
+    if (!isMobile()) {
+      if (propHandleTouchCancel) propHandleTouchCancel();
+      return;
+    }
+
+    if (longPressTimer.current) {
+      clearTimeout(longPressTimer.current);
+    }
+
+    setIsSwiping(false);
+    setIsLongPress(false);
+
+    // Animate back to position
+    setTimeout(() => setSwipeOffset(0), 200);
+  };
+
+  // Close mobile menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (
+        showMobileMenu &&
+        bubbleRef.current &&
+        !bubbleRef.current.contains(e.target)
+      ) {
+        setShowMobileMenu(false);
+      }
+    };
+
+    document.addEventListener("click", handleClickOutside);
+    return () => document.removeEventListener("click", handleClickOutside);
+  }, [showMobileMenu]);
+
+  // Mobile menu component
+  const MobileMenu = () => (
+    <div
+      className={`fixed inset-0 z-50 bg-black/40 backdrop-blur-sm bg-opacity-50 flex items-end justify-center md:hidden`}
+    >
+      <div
+        className="absolute inset-0"
+        onClick={() => setShowMobileMenu(false)}
+      />
+      <motion.div
+        initial={{ y: "100%" }}
+        animate={{ y: 0 }}
+        exit={{ y: "100%" }}
+        transition={{ duration: 0.3, ease: "easeOut" }}
+        className="relative w-full max-w-md bg-black/50 rounded-t-3xl p-4"
+      >
+        <div className="flex justify-between items-center mb-4">
+          <button onClick={() => setShowMobileMenu(false)} className="p-2">
+            <X className="w-5 h-5" />
+          </button>
+          <h3 className="text-lg font-medium">Message Options</h3>
+          <div className="w-10" /> {/* Spacer for alignment */}
+        </div>
+
+        <div className="space-y-2">
+          <button
+            onClick={() => {
+              openReactionPicker(msg.message_id);
+              setShowMobileMenu(false);
+            }}
+            className="w-full flex items-center gap-3 p-3 hover:bg-gray-800 rounded-xl transition-colors"
+          >
+            <SmilePlus className="w-5 h-5" />
+            <span>Add Reaction</span>
+          </button>
+
+          <button
+            onClick={() => {
+              setReplyingTo(msg);
+              setShowMobileMenu(false);
+              textareaRef.current?.focus();
+            }}
+            className="w-full flex items-center gap-3 p-3 hover:bg-gray-800 rounded-xl transition-colors"
+          >
+            <Reply className="w-5 h-5" />
+            <span>Reply</span>
+          </button>
+
+          {isSender && (
+            <>
+              <button
+                onClick={() => {
+                  handleEditMessage(msg);
+                  setShowMobileMenu(false);
+                }}
+                className="w-full flex items-center gap-3 p-3 hover:bg-gray-800 rounded-xl transition-colors"
+              >
+                <Edit2 className="w-5 h-5" />
+                <span>Edit</span>
+              </button>
+
+              {handleDeleteMessage && (
+                <button
+                  onClick={() => {
+                    handleDeleteMessage(msg.message_id);
+                    setShowMobileMenu(false);
+                  }}
+                  className="w-full flex items-center gap-3 p-3 text-red-400 hover:bg-red-900 hover:bg-opacity-20 rounded-xl transition-colors"
+                >
+                  <Trash2 className="w-5 h-5" />
+                  <span>Delete</span>
+                </button>
+              )}
+            </>
+          )}
+        </div>
+      </motion.div>
+    </div>
+  );
+
+  // Swipe indicator component
+  const SwipeIndicator = () => (
+    <div
+      className={`absolute top-0 bottom-0 flex items-center justify-center w-16 ${
+        isSender ? "left-full ml-2" : "right-full mr-2"
+      } pointer-events-none`}
+    >
+      <div
+        className={`flex items-center gap-2 text-blue-400 bg-gray-800 bg-opacity-80 px-3 py-2 rounded-full ${
+          isSender ? "flex-row-reverse" : ""
+        }`}
+      >
+        <Reply className="w-4 h-4" />
+        <span className="text-xs font-medium">Reply</span>
+      </div>
+    </div>
+  );
+
   return (
     <>
       <div
+        ref={bubbleRef}
         key={msg.message_id}
         className={`flex flex-col w-full relative ${
           isSender ? "items-end " : "justify-start"
         }`}
+        style={{
+          transform: `translateX(${swipeOffset}px)`,
+          transition: isSwiping ? "none" : "transform 0.2s ease-out",
+        }}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        onTouchCancel={handleTouchCancel}
       >
+        {/* Show swipe indicator during swipe */}
+        {isSwiping && Math.abs(swipeOffset) > 20 && <SwipeIndicator />}
+
         <div className="pr-2">
           {msg.reply_message_id && (
             <div
@@ -173,11 +412,6 @@ export default function MessageBubble({
                 onClick={(e) =>
                   isMobile() && handleMessageBubbleClick(msg.message_id, e)
                 }
-                onTouchStart={() =>
-                  isMobile() && handleTouchStart(msg.message_id)
-                }
-                onTouchEnd={handleTouchEnd}
-                onTouchCancel={handleTouchCancel}
               >
                 <p
                   className={`relative whitespace-pre-wrap px-4 py-2 break-words  ${
@@ -216,7 +450,7 @@ export default function MessageBubble({
                   </button>
                 )}
 
-                {activeMenu === msg.message_id && (
+                {/* {activeMenu === msg.message_id && (
                   <div
                     ref={menuRef}
                     className={`relative flex items-center justify-center w-fit ${
@@ -252,7 +486,7 @@ export default function MessageBubble({
                       </button>
                     )}
                   </div>
-                )}
+                )} */}
               </div>
             </div>
 
@@ -331,6 +565,11 @@ export default function MessageBubble({
           )}
         </div>
       </div>
+
+      {/* Mobile Menu */}
+      <AnimatePresence>
+        {showMobileMenu && isMobile() && <MobileMenu />}
+      </AnimatePresence>
     </>
   );
 }
