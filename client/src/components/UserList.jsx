@@ -315,12 +315,12 @@ export default function UserList({
 
                       <p className="text-sm text-gray-400 truncate w-40">
                         {typingUserId === String(user.uid)
-                          ? "is typing..."
+                          ? "Typing..."
                           : msg
                           ? msg.sender_id === currentUserId
                             ? `You: ${msg.content}`
                             : msg.content
-                          : ""}
+                          : "Say hi to get started 👋"}
                       </p>
                     </div>
                   </div>
