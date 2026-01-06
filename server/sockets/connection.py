@@ -28,6 +28,7 @@ def handle_connect():
         # Handle online users
         existing_sid = online_manager.get_user_sid(user_id)
         if existing_sid and existing_sid != request.sid:
+            socketio.server.disconnect(existing_sid)
             online_manager.remove_user(user_id)
             stop_refresh_timer(user_id)
 
@@ -38,7 +39,6 @@ def handle_connect():
             "user_online",
             {"user_id": user_id, "timestamp": datetime.utcnow().isoformat()},
             broadcast=True,
-            include_self=False,
         )
 
         emit(

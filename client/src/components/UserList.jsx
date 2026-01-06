@@ -139,7 +139,7 @@ export default function UserList({
   useEffect(() => {
     if (!currentUserId) return;
 
-    socket.emit("register");
+    socket.emit("register", { user_id: currentUserId });
 
     socket.on("new_message", (data) => {
       const senderId = String(data.sender_id);
@@ -169,6 +169,10 @@ export default function UserList({
 
     socket.on("user_online", ({ user_id }) => {
       setOnlineUsers((prev) => new Set([...prev, String(user_id)]));
+    });
+
+    socket.on("online_users_list", ({ online_users }) => {
+      setOnlineUsers(new Set(online_users.map(String)));
     });
 
     socket.on("user_offline", ({ user_id }) => {
