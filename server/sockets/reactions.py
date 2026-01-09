@@ -16,7 +16,7 @@ def handle_add_reaction(data):
         receiver_id = str(data.get("receiver_id", ""))
         reaction_type = data.get("reaction_type", "").lower()
         
-        valid_reactions = ["like", "love", "haha", "wow", "sad", "angry"]
+        valid_reactions = ["like", "love", "haha", "wow", "sad", "angry", "okay"]
         
         if not all([message_id, sender_id, receiver_id, reaction_type]):
             emit("error", {"message": "Missing required fields"}, room=request.sid)

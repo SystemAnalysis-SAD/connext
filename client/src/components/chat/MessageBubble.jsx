@@ -93,32 +93,30 @@ export default function MessageBubble({
     setTouchStartY(touch.clientY);
     setTouchEndX(touch.clientX);
     setIsSwiping(true);
-    setSwipeOffset(0);
 
-    // Start long press timer
     longPressTimer.current = setTimeout(() => {
       setIsLongPress(true);
       setShowMobileMenu(true);
-      handleTouchCancel(e); // Reset swipe
-    }, 500); // 500ms for long press
+      handleTouchCancel(e);
+    }, 500);
   };
 
-  // Handle touch move for swipe
+  const MAX_SWIPE = 80;
+
   const handleTouchMove = (e) => {
     if (!isMobile() || isLongPress) return;
 
     const touch = e.touches[0];
-    setTouchEndX(touch.clientX);
+    const rawOffset = touch.clientX - touchStartX;
 
-    // Calculate swipe offset
-    const offset = isSender
-      ? Math.min(0, touch.clientX - touchStartX) // Swipe left for sender
-      : Math.max(0, touch.clientX - touchStartX); // Swipe right for receiver
+    const clampedOffset = isSender
+      ? Math.max(-MAX_SWIPE, Math.min(0, rawOffset)) // sender LEFT
+      : Math.min(MAX_SWIPE, Math.max(0, rawOffset)); // receiver RIGHT
 
-    setSwipeOffset(offset);
+    setSwipeOffset(clampedOffset);
 
-    // If user starts swiping, cancel long press
-    if (Math.abs(offset) > 10 && longPressTimer.current) {
+    // cancel long press if swiping
+    if (Math.abs(clampedOffset) > 10 && longPressTimer.current) {
       clearTimeout(longPressTimer.current);
     }
   };
@@ -213,6 +211,32 @@ export default function MessageBubble({
         transition={{ duration: 0.3, ease: "easeOut" }}
         className="relative w-full max-w-md bg-black/50 rounded-t-3xl p-4"
       >
+        <AnimatePresence mode="wait">
+          {reactionPicker === msg.message_id && (
+            <motion.div
+              key={`reaction-${msg.message_id}`}
+              initial={{ y: 10, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
+              ref={reactionPickerRef}
+              className={`absolute z-10 bg-gray-800 w-fit rounded-full px-2 shadow-xl border border-gray-700 flex items-center ${
+                isSender ? "right-0 -top-8" : "left- -top-8"
+              }`}
+            >
+              {Object.entries(reactionEmojis).map(([type, emoji]) => (
+                <button
+                  key={type}
+                  onClick={() => addReaction(msg.message_id, type)}
+                  className="w-8 h-8 flex items-center justify-center text-lg hover:scale-125 transition-transform duration-150 reaction-emoji-btn"
+                  title={type.charAt(0).toUpperCase() + type.slice(1)}
+                >
+                  {emoji}
+                </button>
+              ))}
+            </motion.div>
+          )}
+        </AnimatePresence>
         <div className="flex justify-between items-center mb-4">
           <button onClick={() => setShowMobileMenu(false)} className="p-2">
             <X className="w-5 h-5" />
@@ -307,10 +331,6 @@ export default function MessageBubble({
           transform: `translateX(${swipeOffset}px)`,
           transition: isSwiping ? "none" : "transform 0.2s ease-out",
         }}
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
-        onTouchCancel={handleTouchCancel}
       >
         {/* Show swipe indicator during swipe */}
         {isSwiping && Math.abs(swipeOffset) > 20 && <SwipeIndicator />}
@@ -337,7 +357,7 @@ export default function MessageBubble({
                   </span>
                 )}
               </span>
-              <div className="px-2 py-1 min-h-fit max-h-21 min-w-0 max-w-[70%] overflow-hidden rounded-2xl bg-white/20 text-xs opacity-80">
+              <div className="px-2 py-1 min-h-fit max-h-21 min-w-0  max-w-[65%] md:max-w-[50%] overflow-hidden rounded-2xl bg-white/20 text-xs opacity-80">
                 <p className="line-clamp-4">{msg.reply_content}</p>
               </div>
             </div>
@@ -366,7 +386,7 @@ export default function MessageBubble({
                   </span>
                 )}
               </span>
-              <div className="px-2 py-1 min-h-fit max-h-21 min-w-0 max-w-[70%] overflow-hidden rounded-2xl bg-white/20 text-xs opacity-80">
+              <div className="px-2 py-1 min-h-fit max-h-21 min-w-0 max-w-[65%] md:max-w-[50%] overflow-hidden rounded-2xl bg-white/20 text-xs opacity-80">
                 <p className="line-clamp-4">{msg.reply.content}</p>
               </div>
             </div>
@@ -374,7 +394,7 @@ export default function MessageBubble({
         </div>
 
         <div
-          className={`w-fit  max-w-[90%] md:max-w-[50%] wrap-break-word ${
+          className={`w-fit  max-w-[90%] md:max-w-[70%] wrap-break-word ${
             isSender
               ? "mr-2 items-end justify-end flex flex-col w-full"
               : "ml-2 flex flex-col w-full"
@@ -406,7 +426,7 @@ export default function MessageBubble({
                 </div>
               )}
               <div
-                className={`relative flex w-full ${
+                className={`relative flex w-full group  ${
                   isSender ? "flex-row-reverse break-words " : "mr-auto"
                 } `}
                 onClick={(e) =>
@@ -414,79 +434,66 @@ export default function MessageBubble({
                 }
               >
                 <p
-                  className={`relative whitespace-pre-wrap px-4 py-2 break-words  ${
+                  className={`relative whitespace-pre-wrap px-4 py-2 break-words select-none active:scale-85 active:transition-all duration-300 ${
                     isSender
-                      ? `bg-gradient-to-r max-w-[calc(100%-80px)] rounded-bl-3xl rounded-r-md rounded-tl-3xl from-blue-600 to-blue-700 text-white ${
+                      ? `bg-gradient-to-r max-w-[calc(100%-80px)] rounded-bl-3xl rounded-r-sm rounded-tl-3xl from-blue-600 to-blue-700 text-white ${
                           isFirstBubble
-                            ? "rounded-br-md rounded-l-3xl rounded-tr-3xl"
+                            ? "rounded-br-sm rounded-l-3xl rounded-tr-3xl"
                             : isLastBubble
-                            ? "rounded-tr-md rounded-l-3xl rounded-br-3xl"
+                            ? "rounded-tr-sm rounded-l-3xl rounded-br-3xl"
                             : ""
                         }`
-                      : `bg-gray-600 max-w-[calc(100%-60px)] ml-10 rounded-br-3xl rounded-l-md rounded-tr-3xl from-blue-600 to-blue-700 text-white ${
+                      : `bg-gray-600 max-w-[calc(100%-60px)] ml-10 rounded-br-3xl rounded-l-sm rounded-tr-3xl from-blue-600 to-blue-700 text-white ${
                           isFirstBubble
-                            ? "rounded-bl-md rounded-r-3xl rounded-tl-3xl"
+                            ? "rounded-bl-sm rounded-r-3xl rounded-tl-3xl"
                             : isLastBubble
-                            ? "rounded-tl-md rounded-r-3xl rounded-bl-3xl"
+                            ? "rounded-tl-sm rounded-r-3xl rounded-bl-3xl"
                             : ""
                         }`
                   } min-w-0`}
+                  onTouchStart={handleTouchStart}
+                  onTouchMove={handleTouchMove}
+                  onTouchEnd={handleTouchEnd}
+                  onTouchCancel={handleTouchCancel}
                 >
                   {msg.content}
                 </p>
 
-                {isTouched && window.innerWidth > 768 && (
+                <div
+                  ref={menuRef}
+                  className={`relative  opacity-0 pointer-events-none
+    group-hover:opacity-100 group-hover:pointer-events-auto
+    transition-opacity duration-200
+    ${isSender ? "-left-2 flex-row-reverse" : "-right-2"}
+    hidden md:flex`}
+                >
                   <button
-                    onClick={(e) => toggleMenu(msg.message_id, e)}
-                    className={`absolute top-1/2 -translate-y-1/2 transition-opacity duration-200 ${
-                      isSender ? "-left-10" : "-right-10"
-                    } ${
-                      isMobile()
-                        ? "opacity-100"
-                        : "opacity-0 group-hover:opacity-100"
-                    }`}
+                    onClick={() => openReactionPicker(msg.message_id)}
+                    className="flex items-center text-sm text-gray-300 hover:bg-white/20 rounded-full px-3 py-0  transition-colors w-full"
                   >
-                    <MoreHorizontal className="w-5 h-5 text-gray-400 hover:text-gray-300" />
+                    <SmilePlus className="w-4 h-4" />
                   </button>
-                )}
-
-                {/* {activeMenu === msg.message_id && (
-                  <div
-                    ref={menuRef}
-                    className={`relative flex items-center justify-center w-fit ${
-                      isSender
-                        ? "-left-2 flex-row-reverse gap-3"
-                        : "-right-2  gap-2 "
-                    }   `}
+                  <button
+                    onClick={() => {
+                      setReplyingTo(msg);
+                      setActiveMenu(null);
+                      setReactionPicker(null);
+                      textareaRef.current?.focus();
+                    }}
+                    className="flex items-center  text-sm text-gray-300 hover:bg-white/20 rounded-full px-3 transition-colors w-full"
                   >
-                    <button
-                      onClick={() => openReactionPicker(msg.message_id)}
-                      className="flex items-center text-sm text-gray-300 hover:bg-gray-700 transition-colors w-full"
-                    >
-                      <SmilePlus className="w-4 h-4" />
-                    </button>
-                    <button
-                      onClick={() => {
-                        setReplyingTo(msg);
-                        setActiveMenu(null);
-                        setReactionPicker(null);
-                        textareaRef.current?.focus();
-                      }}
-                      className="flex items-center  text-sm text-gray-300 hover:bg-gray-700 rounded-b-lg transition-colors w-full"
-                    >
-                      <Reply className="w-4 h-4" />
-                    </button>
+                    <Reply className="w-4 h-4" />
+                  </button>
 
-                    {isSender && (
-                      <button
-                        onClick={() => handleEditMessage(msg)}
-                        className="flex items-center text-sm text-gray-300 hover:bg-gray-700 rounded-t-lg transition-colors w-full"
-                      >
-                        <Edit2 className="w-4 h-4" />
-                      </button>
-                    )}
-                  </div>
-                )} */}
+                  {isSender && (
+                    <button
+                      onClick={() => handleEditMessage(msg)}
+                      className="flex items-center text-sm text-gray-300 hover:bg-white/20 rounded-full px-3 transition-colors w-full"
+                    >
+                      <Edit2 className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
 
@@ -499,15 +506,15 @@ export default function MessageBubble({
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.2, ease: "easeOut" }}
                   ref={reactionPickerRef}
-                  className={`absolute z-10 bg-gray-800 w-fit rounded-full px-2 shadow-xl border border-gray-700 flex items-center ${
-                    isSender ? "right-0 -top-8" : "left- -top-8"
+                  className={`absolute z-10 bg-gray-900 w-fit rounded-full px-2 shadow-xl border border-gray-700 flex items-center ${
+                    isSender ? "right-0 -top-8" : "left-9 -top-8"
                   }`}
                 >
                   {Object.entries(reactionEmojis).map(([type, emoji]) => (
                     <button
                       key={type}
                       onClick={() => addReaction(msg.message_id, type)}
-                      className="w-8 h-8 flex items-center justify-center text-lg hover:scale-125 transition-transform duration-150 reaction-emoji-btn"
+                      className="w-8 h-8 md:w-10 md:h-10 md:text-[30px] cursor-pointer flex items-center  justify-center text-lg hover:scale-125 transition-transform duration-150 reaction-emoji-btn"
                       title={type.charAt(0).toUpperCase() + type.slice(1)}
                     >
                       {emoji}

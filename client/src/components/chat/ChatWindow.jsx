@@ -603,7 +603,7 @@ export default function ChatWindow({
       />
 
       {/* Chat Messages - FIXED CONTAINER */}
-      <div className="flex-1 w-full overflow-y-auto bg-[var(--black)] px-2 sm:px-4 py-4">
+      <div className="flex-1 pt-15 w-full overflow-y-auto bg-[var(--black)] px-2 sm:px-4 py-4">
         <div className="max-w-full mx-auto w-full">
           {/* Messages */}
           {messages.length === 0 && receiver ? (
@@ -619,7 +619,7 @@ export default function ChatWindow({
               </p>
             </div>
           ) : (
-            <div className="space-y-1 pt-25 sm:pt-6 md:pt-8 pb-16 md:pb-16 w-full">
+            <div className="space-y-0.5 pt-25  md:pt-8 pb-16 md:pb-16 w-full">
               {messages.map((msg, index) => (
                 <MessageBubble
                   key={msg.message_id}

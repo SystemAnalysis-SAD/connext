@@ -35,18 +35,26 @@ export default function Messages() {
       <div
         className={`
           ${view === "messages" ? "block" : "hidden"}
-          md:block w-full md:max-w-85 md:min-w-85  md:border-r border-white/10 bg-[var(--black)] overflow-hidden
+          md:block w-full md:max-w-85 md:min-w-85  md:border-r border-white/10 bg-[var(--black)] overflow-hidden md:pt-3
         `}
       >
-        <div className="px-4 pt-4 pb-1 flex items-center justify-between ">
+        <div className="px-4 pt-4   ">
           {width < 768 ? (
-            <p className="text-3xl font-bold">
-              con<span className="text-[var(--primary)]">next</span>
-            </p>
+            <section className="flex items-center justify-between">
+              <p className="text-3xl font-bold pb-2">
+                con<span className="text-[var(--primary)]">next</span>
+              </p>
+
+              <img
+                src="/connext(1).png"
+                alt="logo"
+                width={33}
+                className="invert brightness-0"
+              />
+            </section>
           ) : (
             <p className="text-2xl font-bold">{user?.username}</p>
           )}
-          <img src="/connext(1).png" alt="logo" width={33} />
         </div>
 
         <UserList
